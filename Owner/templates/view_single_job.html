@@ -1,0 +1,570 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCW CRM - Admin Dashboard</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --dark-color: #5a5c69;
+            --sidebar-width: 250px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fc;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: linear-gradient(180deg, var(--primary-color) 0%, #224abe 100%);
+            color: white;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .sidebar-brand {
+            height: 4.375rem;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: 800;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            letter-spacing: 0.05rem;
+        }
+
+        .sidebar-divider {
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            margin: 0 1rem 1rem;
+        }
+
+        .sidebar-heading {
+            padding: 0 1rem;
+            font-weight: 800;
+            font-size: 0.65rem;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-link {
+            color: rgba(0, 0, 0, 0.8);
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+        }
+
+        .nav-link:hover {
+            color: rgb(204, 14, 14);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-link i {
+            margin-right: 0.5rem;
+        }
+
+        .nav-link.active {
+            color: rgb(0, 0, 0);
+            font-weight: 700;
+        }
+
+        /* Main Content */
+        #content {
+            width: calc(100% - var(--sidebar-width));
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            transition: all 0.3s;
+        }
+
+        /* Topbar */
+        .topbar {
+            height: 4.375rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            background-color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-left: -250px;
+            }
+
+            #content {
+                width: 100%;
+                margin-left: 0;
+            }
+
+            .sidebar.toggled {
+                margin-left: 0;
+            }
+
+            #content.toggled {
+                margin-left: 250px;
+            }
+        }
+
+        /* Add these styles to your existing CSS */
+
+        /* Customer Cards */
+        .customer-card {
+            transition: all 0.3s;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .customer-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        }
+
+        /* Status Badges */
+        .badge-Completed {
+            background-color: #02f30e;
+        }
+
+        .badge-in_progrss {
+            background-color: #e0d319;
+        }
+
+        .badge-pending {
+            background-color: #e01919;
+        }
+
+        /* Action Buttons */
+        .btn-action {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        /* Responsive Table */
+        @media (max-width: 768px) {
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+    </style>
+</head>
+
+<body id="page-top">
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="#">
+            <img src="{% static 'img/logo.png' %}" alt="MCW" height="50" class="me-2">
+            <span style="color: #f8f9fc;">MCW </span>
+        </a>
+
+        <hr class="sidebar-divider">
+
+        <div class="sidebar-heading">Core</div>
+
+        <li class="nav-item">
+            <a class="nav-link " href="/OwnerHome">
+                <i class="bi bi-speedometer2"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link " href="/OwnerCustomerPg">
+                <i class="bi bi-people"></i>
+                <span>Customers</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link active" href="/JobCardpg">
+                <i class="bi bi-briefcase"></i>
+                <span>Job Card</span>
+            </a>
+        </li>
+
+        <hr class="sidebar-divider">
+
+        <div class="sidebar-heading">Management</div>
+
+        <li class="nav-item">
+            <a class="nav-link" href="/ViewStaffPg">
+                <i class="bi bi-file-earmark-text"></i>
+                <span>Staff</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="/StockPg">
+                <i class="bi bi-box-seam"></i>
+                <span>Stock</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="#">
+                <i class="bi bi-gear"></i>
+                <span>Settings</span>
+            </a>
+        </li>
+    </div>
+
+    <!-- Content Wrapper -->
+    <div id="content">
+        <!-- Topbar -->
+        <nav class="topbar navbar navbar-expand navbar-light shadow">
+            <!-- Sidebar Toggle -->
+            <button class="btn btn-link d-md-none rounded-circle me-3" id="sidebarToggle">
+                <i class="bi bi-list"></i>
+            </button>
+
+            <!-- Topbar Navbar -->
+            <ul class="navbar-nav ms-auto">
+                <!-- Notifications Dropdown -->
+                <li class="nav-item dropdown no-arrow mx-1">
+                    <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
+                        data-bs-toggle="dropdown">
+                        <i class="bi bi-bell-fill"></i>
+                        <span class="badge bg-danger badge-counter">3+</span>
+                    </a>
+                    <div class="dropdown-list dropdown-menu dropdown-menu-end shadow">
+                        <h6 class="dropdown-header">Alerts Center</h6>
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <div class="me-3">
+                                <div class="icon-circle bg-primary">
+                                    <i class="bi bi-file-earmark-text text-white"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="small text-gray-500">December 12, 2023</div>
+                                <span class="font-weight-bold">A new monthly report is ready to download!</span>
+                            </div>
+                        </a>
+                        <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
+                    </div>
+                </li>
+
+                <!-- User Dropdown -->
+                <li class="nav-item dropdown no-arrow">
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                        data-bs-toggle="dropdown">
+                        <span class="me-2 d-none d-lg-inline text-gray-600 small">Admin User</span>
+                        <img class="img-profile rounded-circle" src="{% static 'img/logo.png' %}" height="40px">
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end shadow">
+                        <a class="dropdown-item" href="#">
+                            <i class="bi bi-person-fill me-2"></i>
+                            Profile
+                        </a>
+                        <a class="dropdown-item" href="#">
+                            <i class="bi bi-gear-fill me-2"></i>
+                            Settings
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                            <i class="bi bi-box-arrow-right me-2"></i>
+                            Logout
+                        </a>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+        <!-- End of Topbar -->
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid p-4">
+            <!-- Page Heading -->
+            <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                <h1 class="h3 mb-0 text-gray-800">Job Card Details</h1>
+                <div>
+                    <a href="#" class="btn btn-primary">
+                        <i class="bi bi-pencil-square"></i> Edit Job Card
+                    </a>
+                    <!-- <a href="#" class="btn btn-outline-secondary ms-2">
+                <i class="bi bi-printer"></i> Print
+            </a> -->
+                    <a href="#" class="btn btn-outline-secondary ms-2">
+                        <i class="bi bi-arrow-left"></i> Back to List
+                    </a>
+                </div>
+            </div>
+
+            <!-- Job Card Details -->
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Vehicle Information Card -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 bg-primary text-white">
+                            <h6 class="m-0 font-weight-bold">Vehicle Information</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <p class="mb-1"><strong>Customer Name:</strong></p>
+                                        <p>John Smith</p>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <p class="mb-1"><strong>Registration No:</strong></p>
+                                        <p>ABC-1234</p>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <p class="mb-1"><strong>Vehicle Model:</strong></p>
+                                        <p>Toyota Corolla 2020</p>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <p class="mb-1"><strong>Chassis No:</strong></p>
+                                        <p>JTDKB20U687923456</p>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <p class="mb-1"><strong>Engine No:</strong></p>
+                                        <p>2ZR987654</p>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <p class="mb-1"><strong>Petrol Level:</strong></p>
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: 25%;"
+                                                aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">1/4 Tank</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Job Details Card -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 bg-primary text-white">
+                            <h6 class="m-0 font-weight-bold">Job Details</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <p class="mb-1"><strong>Job Card No:</strong></p>
+                                        <p>JC-2023-105</p>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <p class="mb-1"><strong>Received Date:</strong></p>
+                                        <p>March 5, 2023</p>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <p class="mb-1"><strong>Delivery Date:</strong></p>
+                                        <p class="text-danger font-weight-bold">March 10, 2023</p>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <p class="mb-1"><strong>Assigned Staff:</strong></p>
+                                        <p>Michael Johnson (Senior Technician)</p>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <p class="mb-1"><strong>Job Status:</strong></p>
+                                        <span class="badge bg-warning text-dark">In Progress</span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <p class="mb-1"><strong>Estimated Amount:</strong></p>
+                                        <p class="font-weight-bold">$450.00</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <p class="mb-1"><strong>Work Description:</strong></p>
+                                <div class="border p-3 bg-light">
+                                    <ul>
+                                        <li>Engine oil change</li>
+                                        <li>Oil filter replacement</li>
+                                        <li>Brake inspection and adjustment</li>
+                                        <li>Wheel alignment</li>
+                                        <li>AC system check</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <!-- Customer Contact Card -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 bg-primary text-white">
+                            <h6 class="m-0 font-weight-bold">Customer Contact</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <p class="mb-1"><strong><i class="bi bi-telephone me-2"></i>Phone:</strong></p>
+                                <p>+1 234 567 890</p>
+                            </div>
+
+                            <div class="mb-3">
+                                <p class="mb-1"><strong><i class="bi bi-envelope me-2"></i>Email:</strong></p>
+                                <p>john.smith@example.com</p>
+                            </div>
+
+                            <div class="mb-3">
+                                <p class="mb-1"><strong><i class="bi bi-geo-alt me-2"></i>Address:</strong></p>
+                                <p>
+                                    123 Main Street<br>
+                                    New York, NY 10001
+                                </p>
+                            </div>
+
+                            <div class="text-center mt-4">
+                                <button class="btn btn-primary me-2">
+                                    <i class="bi bi-telephone"></i> Call Customer
+                                </button>
+                                <button class="btn btn-success">
+                                    <i class="bi bi-whatsapp"></i> WhatsApp
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Job Progress Card -->
+                    <!-- <div class="card shadow mb-4">
+                        <div class="card-header py-3 bg-primary text-white">
+                            <h6 class="m-0 font-weight-bold">Job Progress</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="progress mb-4" style="height: 20px;">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: 65%;"
+                                    aria-valuenow="65" aria-valuemin="0" aria-valuemax="100">65% Complete</div>
+                            </div>
+
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Inspection
+                                    <span class="badge bg-success rounded-pill"><i class="bi bi-check"></i></span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Parts Ordered
+                                    <span class="badge bg-success rounded-pill"><i class="bi bi-check"></i></span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Service In Progress
+                                    <span class="badge bg-primary rounded-pill"><i
+                                            class="bi bi-arrow-repeat"></i></span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Quality Check
+                                    <span class="badge bg-secondary rounded-pill"><i class="bi bi-dash"></i></span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Ready for Delivery
+                                    <span class="badge bg-secondary rounded-pill"><i class="bi bi-dash"></i></span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div> -->
+
+                    <!-- Parts & Materials Card -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 bg-primary text-white">
+                            <h6 class="m-0 font-weight-bold">Parts & Materials</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Part</th>
+                                            <th>Qty</th>
+                                            <th>Price</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Engine Oil</td>
+                                            <td>1</td>
+                                            <td>$45.00</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Oil Filter</td>
+                                            <td>1</td>
+                                            <td>$15.00</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Brake Pads</td>
+                                            <td>4</td>
+                                            <td>$120.00</td>
+                                        </tr>
+                                        <tr class="table-secondary">
+                                            <td><strong>Total</strong></td>
+                                            <td></td>
+                                            <td><strong>$180.00</strong></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <!-- End of Page Content -->
+        <!-- End of Page Content -->
+    </div>
+    <!-- End of Content Wrapper -->
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Ready to Leave?</h5>
+                    <button class="close" type="button" data-bs-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
+                    <a class="btn btn-primary" href="login.html">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom scripts -->
+    <script>
+        // Sidebar Toggle
+        document.getElementById('sidebarToggle').addEventListener('click', function (e) {
+            e.preventDefault();
+            document.getElementById('sidebar').classList.toggle('toggled');
+            document.getElementById('content').classList.toggle('toggled');
+        });
+    </script>
+</body>
+
+</html>
