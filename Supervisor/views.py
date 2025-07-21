@@ -133,3 +133,28 @@ def create_job_card(request):
             return JsonResponse({'success': False, 'error': str(e)}, status=400)
     
     return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
+
+def supervisor_view_stock(request):
+    user_id=request.session['user_id'] 
+    user_name=request.session['user_name'] 
+    position=request.session['user_position'] 
+    if position=="Supervisor":
+        
+        usertable=UsesDB.objects.filter(id=user_id)
+        stockdata=StockDB.objects.all()
+        stok=[]
+        TotalstokValue=0
+        for i in stockdata:
+            stok.append({"ItemCode":i.ItemCode,"ItemName":i.ItemName,"Category":i.Category,
+                         "Supplier":i.Supplier,"Quantity":i.Quantity,"Unit":i.Unit,"Price":i.Price,
+                         "Value":i.Value,"Status":i.Status})
+            TotalstokValue+=int(i.Value)
+        TotalItems=len(stockdata)
+        LowStock=len(StockDB.objects.filter(shop=usertable[0].shop.id,Status="Low Stock"))
+        OutofStock=len(StockDB.objects.filter(shop=usertable[0].shop.id,Status="Out of Stock"))
+
+        data={"user":user_name,"TotalItems":TotalItems,"LowStock":LowStock,"OutofStock":OutofStock,"stockdata":stok,"TotalstokValue":TotalstokValue}
+        # return render(request,"Stock.html",{'data': json.dumps(data)})
+    return render(request, "Supervisor_view_stock.html",{'data': json.dumps(data)})

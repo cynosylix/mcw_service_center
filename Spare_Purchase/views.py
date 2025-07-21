@@ -47,7 +47,7 @@ def add_stock(request):
     user_id=request.session['user_id'] 
     user_name=request.session['user_name'] 
     position=request.session['user_position'] 
-    if position=="Purchase Staff"  or position=="Owner":
+    if position=="Purchase Staff"  or position=="Owner" or position=="Supervisor":
         if request.method == 'POST':
             try:
                 # For form-data (files)
