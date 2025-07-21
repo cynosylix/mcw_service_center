@@ -877,21 +877,31 @@
         }
 
         // Function to load parts for select dropdown (would need backend API endpoint)
-        function loadPartsForSelect(selectElement) {
-            fetch('/Supervisor/returnparts')
-                .then(response => response.json())
-                .then(data => {
-                    selectElement.innerHTML = '<option value="">Select Part</option>';
-                    console.log(data)
-                    data.parts.forEach(part => {
-                        console.log(part)
-                        const option = document.createElement('option');
-                        option.value = part.id;
-                        option.textContent = `${part.name} (${part.quantity}) - $${part.Price}`;
-                        selectElement.appendChild(option);
-                    });
-                });
-        }
+        // Function to load parts for select dropdown
+function loadPartsForSelect(selectElement) {
+    fetch('/Supervisor/returnparts')
+        .then(response => response.json())
+        .then(data => {
+            selectElement.innerHTML = '<option value="">Select Part</option>';
+            data.parts.forEach(part => {
+                const option = document.createElement('option');
+                option.value = part.id;
+                option.textContent = `${part.name} (Stock: ${part.quantity}) - ₹${part.Price.toFixed(2)}`;
+                option.dataset.price = part.Price; // Store price as data attribute
+                selectElement.appendChild(option);
+            });
+            
+            // Add event listener to auto-fill price when part is selected
+            selectElement.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                if (selectedOption.value) {
+                    const priceInput = this.closest('tr').querySelector('.price');
+                    priceInput.value = selectedOption.dataset.price;
+                }
+            });
+        })
+        .catch(error => console.error('Error loading parts:', error));
+}
 
         // Load parts for existing selects when modal opens
         document.getElementById('editJobCardModal').addEventListener('show.bs.modal', function () {
