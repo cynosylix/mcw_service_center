@@ -22,7 +22,29 @@ def view_single_job(request):
     return render(request,"view_single_job.html")
 
 def ViewStaffPg(request):
-    return render(request,"view_staff.html")
+    user_id = request.session['user_id'] 
+    user_name = request.session['user_name'] 
+    position = request.session['user_position'] 
+    
+    if position == "Owner":
+        user_data = UsesDB.objects.exclude(position='Owner')
+        print(user_data)
+        
+        context = {
+            'user_data': user_data,
+            'user_name': user_name,
+            'position': position
+        }
+        return render(request, "view_staff.html", context)
+    else:
+        # Handle non-owner access if needed
+        return render(request, "view_staff.html")
+
+
+
+
+
+
 def StockPg(request):
     user_id=request.session['user_id'] 
     user_name=request.session['user_name'] 

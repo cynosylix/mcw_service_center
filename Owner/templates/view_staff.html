@@ -112,15 +112,19 @@
             padding: 5px;
             font-size: 12px;
         }
+
         .present {
             background-color: #d4edda;
         }
+
         .absent {
             background-color: #f8d7da;
         }
+
         .leave {
             background-color: #fff3cd;
         }
+
         .holiday {
             background-color: #e2e3e5;
         }
@@ -129,15 +133,19 @@
         .salary-card {
             border-left: 4px solid;
         }
+
         .salary-card.bg-primary {
             border-left-color: #4e73df;
         }
+
         .salary-card.bg-success {
             border-left-color: #1cc88a;
         }
+
         .salary-card.bg-warning {
             border-left-color: #f6c23e;
         }
+
         .salary-card.bg-info {
             border-left-color: #36b9cc;
         }
@@ -300,17 +308,20 @@
             <!-- Navigation Tabs -->
             <ul class="nav nav-tabs mb-4" id="staffTabs" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="staff-list-tab" data-bs-toggle="tab" data-bs-target="#staff-list" type="button" role="tab">
+                    <button class="nav-link active" id="staff-list-tab" data-bs-toggle="tab"
+                        data-bs-target="#staff-list" type="button" role="tab">
                         Staff List
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="attendance-tab" data-bs-toggle="tab" data-bs-target="#attendance" type="button" role="tab">
+                    <button class="nav-link" id="attendance-tab" data-bs-toggle="tab" data-bs-target="#attendance"
+                        type="button" role="tab">
                         Attendance
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="salary-tab" data-bs-toggle="tab" data-bs-target="#salary" type="button" role="tab">
+                    <button class="nav-link" id="salary-tab" data-bs-toggle="tab" data-bs-target="#salary" type="button"
+                        role="tab">
                         Salary & Payroll
                     </button>
                 </li>
@@ -489,7 +500,8 @@
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table class="table table-bordered table-hover" id="staffTable" width="100%" cellspacing="0">
+                                <table class="table table-bordered table-hover" id="staffTable" width="100%"
+                                    cellspacing="0">
                                     <thead>
                                         <tr>
                                             <th>Staff ID</th>
@@ -502,66 +514,41 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        {% for staff in user_data %}
                                         <tr>
-                                            <td>STF-1001</td>
-                                            <td>Michael Johnson</td>
-                                            <td><span class="badge bg-primary">Supervisor</span></td>
-                                            <td>+1 234 567 890<br>michael@example.com</td>
-                                            <td>Jan 15, 2021</td>
-                                            <td><span class="badge bg-success">Active</span></td>
+                                            <td>STF-{{ staff.id }}</td>
+                                            <td>{{ staff.name }}</td>
+                                            <td>
+                                                <span class="badge 
+                                {% if staff.position == 'Supervisor' %}bg-primary
+                                {% elif staff.position == 'Senior Mechanic' %}bg-success
+                                {% elif staff.position == 'Helper' %}bg-warning text-dark
+                                {% elif staff.position == 'Purchase Staff' %}bg-info
+                                {% elif staff.position == 'Mechanic' %}bg-secondary
+                                {% else %}bg-dark{% endif %}">
+                                                    {{ staff.position }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                {{ staff.mobile }}<br>
+                                                {{ staff.email }}
+                                            </td>
+                                            <td>{{ staff.JoinDate }}</td>
+                                            <td>
+                                                <span class="badge 
+                                {% if staff.Status == 'Active' %}bg-success
+                                {% elif staff.Status == 'InActive' %}bg-danger
+                                {% elif staff.Status == 'On Leave' %}bg-warning text-dark
+                                {% else %}bg-secondary{% endif %}">
+                                                    {{ staff.Status }}
+                                                </span>
+                                            </td>
                                             <td>
                                                 <a href="#" class="btn btn-sm btn-primary"><i class="bi bi-eye"></i></a>
                                                 <a href="#" class="btn btn-sm btn-info"><i class="bi bi-pencil"></i></a>
                                             </td>
                                         </tr>
-                                        <tr>
-                                            <td>STF-1002</td>
-                                            <td>David Wilson</td>
-                                            <td><span class="badge bg-success">Senior Mechanic</span></td>
-                                            <td>+1 345 678 901<br>david@example.com</td>
-                                            <td>Mar 10, 2021</td>
-                                            <td><span class="badge bg-success">Active</span></td>
-                                            <td>
-                                                <a href="#" class="btn btn-sm btn-primary"><i class="bi bi-eye"></i></a>
-                                                <a href="#" class="btn btn-sm btn-info"><i class="bi bi-pencil"></i></a>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>STF-1003</td>
-                                            <td>Robert Brown</td>
-                                            <td><span class="badge bg-warning text-dark">Helper</span></td>
-                                            <td>+1 456 789 012<br>robert@example.com</td>
-                                            <td>Jun 5, 2021</td>
-                                            <td><span class="badge bg-success">Active</span></td>
-                                            <td>
-                                                <a href="#" class="btn btn-sm btn-primary"><i class="bi bi-eye"></i></a>
-                                                <a href="#" class="btn btn-sm btn-info"><i class="bi bi-pencil"></i></a>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>STF-1004</td>
-                                            <td>Sarah Miller</td>
-                                            <td><span class="badge bg-info">Purchase Staff</span></td>
-                                            <td>+1 567 890 123<br>sarah@example.com</td>
-                                            <td>Aug 20, 2021</td>
-                                            <td><span class="badge bg-success">Active</span></td>
-                                            <td>
-                                                <a href="#" class="btn btn-sm btn-primary"><i class="bi bi-eye"></i></a>
-                                                <a href="#" class="btn btn-sm btn-info"><i class="bi bi-pencil"></i></a>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>STF-1005</td>
-                                            <td>James Taylor</td>
-                                            <td><span class="badge bg-secondary">Mechanic</span></td>
-                                            <td>+1 678 901 234<br>james@example.com</td>
-                                            <td>Oct 12, 2021</td>
-                                            <td><span class="badge bg-danger">On Leave</span></td>
-                                            <td>
-                                                <a href="#" class="btn btn-sm btn-primary"><i class="bi bi-eye"></i></a>
-                                                <a href="#" class="btn btn-sm btn-info"><i class="bi bi-pencil"></i></a>
-                                            </td>
-                                        </tr>
+                                        {% endfor %}
                                     </tbody>
                                 </table>
                             </div>
@@ -575,7 +562,8 @@
                         <div class="card-header py-3 d-flex justify-content-between align-items-center">
                             <h6 class="m-0 font-weight-bold text-primary">Monthly Attendance</h6>
                             <div>
-                                <select class="form-select form-select-sm me-2" style="width: 120px; display: inline-block;">
+                                <select class="form-select form-select-sm me-2"
+                                    style="width: 120px; display: inline-block;">
                                     <option>January 2023</option>
                                     <option>February 2023</option>
                                     <option selected>March 2023</option>
@@ -592,12 +580,36 @@
                                     <thead>
                                         <tr>
                                             <th>Staff Name</th>
-                                            <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
-                                            <th>6</th><th>7</th><th>8</th><th>9</th><th>10</th>
-                                            <th>11</th><th>12</th><th>13</th><th>14</th><th>15</th>
-                                            <th>16</th><th>17</th><th>18</th><th>19</th><th>20</th>
-                                            <th>21</th><th>22</th><th>23</th><th>24</th><th>25</th>
-                                            <th>26</th><th>27</th><th>28</th><th>29</th><th>30</th>
+                                            <th>1</th>
+                                            <th>2</th>
+                                            <th>3</th>
+                                            <th>4</th>
+                                            <th>5</th>
+                                            <th>6</th>
+                                            <th>7</th>
+                                            <th>8</th>
+                                            <th>9</th>
+                                            <th>10</th>
+                                            <th>11</th>
+                                            <th>12</th>
+                                            <th>13</th>
+                                            <th>14</th>
+                                            <th>15</th>
+                                            <th>16</th>
+                                            <th>17</th>
+                                            <th>18</th>
+                                            <th>19</th>
+                                            <th>20</th>
+                                            <th>21</th>
+                                            <th>22</th>
+                                            <th>23</th>
+                                            <th>24</th>
+                                            <th>25</th>
+                                            <th>26</th>
+                                            <th>27</th>
+                                            <th>28</th>
+                                            <th>29</th>
+                                            <th>30</th>
                                             <th>31</th>
                                             <th>Present</th>
                                             <th>Absent</th>
@@ -607,16 +619,36 @@
                                     <tbody>
                                         <tr>
                                             <td>Michael Johnson</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="present">P</td>
-                                            <td class="present">P</td><td class="holiday">H</td><td class="holiday">H</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="present">P</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="present">P</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="holiday">H</td>
-                                            <td class="holiday">H</td><td class="present">P</td><td class="present">P</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="present">P</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="present">P</td>
-                                            <td class="holiday">H</td><td class="holiday">H</td><td class="present">P</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="holiday">H</td>
+                                            <td class="holiday">H</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="holiday">H</td>
+                                            <td class="holiday">H</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="holiday">H</td>
+                                            <td class="holiday">H</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
                                             <td class="present">P</td>
                                             <td>24</td>
                                             <td>0</td>
@@ -624,16 +656,36 @@
                                         </tr>
                                         <tr>
                                             <td>David Wilson</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="present">P</td>
-                                            <td class="present">P</td><td class="holiday">H</td><td class="holiday">H</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="present">P</td>
-                                            <td class="present">P</td><td class="absent">A</td><td class="present">P</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="holiday">H</td>
-                                            <td class="holiday">H</td><td class="present">P</td><td class="present">P</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="present">P</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="present">P</td>
-                                            <td class="holiday">H</td><td class="holiday">H</td><td class="present">P</td>
-                                            <td class="present">P</td><td class="leave">L</td><td class="leave">L</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="holiday">H</td>
+                                            <td class="holiday">H</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="absent">A</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="holiday">H</td>
+                                            <td class="holiday">H</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="holiday">H</td>
+                                            <td class="holiday">H</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="leave">L</td>
+                                            <td class="leave">L</td>
                                             <td class="present">P</td>
                                             <td>22</td>
                                             <td>1</td>
@@ -641,16 +693,36 @@
                                         </tr>
                                         <tr>
                                             <td>Robert Brown</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="present">P</td>
-                                            <td class="present">P</td><td class="holiday">H</td><td class="holiday">H</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="present">P</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="present">P</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="holiday">H</td>
-                                            <td class="holiday">H</td><td class="present">P</td><td class="present">P</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="present">P</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="present">P</td>
-                                            <td class="holiday">H</td><td class="holiday">H</td><td class="present">P</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="holiday">H</td>
+                                            <td class="holiday">H</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="holiday">H</td>
+                                            <td class="holiday">H</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="holiday">H</td>
+                                            <td class="holiday">H</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
                                             <td class="present">P</td>
                                             <td>24</td>
                                             <td>0</td>
@@ -658,16 +730,36 @@
                                         </tr>
                                         <tr>
                                             <td>Sarah Miller</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="present">P</td>
-                                            <td class="present">P</td><td class="holiday">H</td><td class="holiday">H</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="present">P</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="present">P</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="holiday">H</td>
-                                            <td class="holiday">H</td><td class="present">P</td><td class="present">P</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="present">P</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="present">P</td>
-                                            <td class="holiday">H</td><td class="holiday">H</td><td class="present">P</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="holiday">H</td>
+                                            <td class="holiday">H</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="holiday">H</td>
+                                            <td class="holiday">H</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="holiday">H</td>
+                                            <td class="holiday">H</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
                                             <td class="present">P</td>
                                             <td>24</td>
                                             <td>0</td>
@@ -675,16 +767,36 @@
                                         </tr>
                                         <tr>
                                             <td>James Taylor</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="present">P</td>
-                                            <td class="present">P</td><td class="holiday">H</td><td class="holiday">H</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="present">P</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="present">P</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="holiday">H</td>
-                                            <td class="holiday">H</td><td class="present">P</td><td class="present">P</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="present">P</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="present">P</td>
-                                            <td class="holiday">H</td><td class="holiday">H</td><td class="present">P</td>
-                                            <td class="present">P</td><td class="present">P</td><td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="holiday">H</td>
+                                            <td class="holiday">H</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="holiday">H</td>
+                                            <td class="holiday">H</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="holiday">H</td>
+                                            <td class="holiday">H</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
+                                            <td class="present">P</td>
                                             <td class="present">P</td>
                                             <td>24</td>
                                             <td>0</td>
@@ -708,7 +820,8 @@
                                             <div class="h5 mb-0 font-weight-bold text-gray-800">23.6</div>
                                         </div>
                                         <div class="col-auto">
-                                            <i class="bi bi-check-circle-fill text-success" style="font-size: 2rem;"></i>
+                                            <i class="bi bi-check-circle-fill text-success"
+                                                style="font-size: 2rem;"></i>
                                         </div>
                                     </div>
                                 </div>
@@ -836,7 +949,8 @@
                         <div class="card-header py-3 d-flex justify-content-between align-items-center">
                             <h6 class="m-0 font-weight-bold text-primary">Salary & Payroll</h6>
                             <div>
-                                <select class="form-select form-select-sm me-2" style="width: 120px; display: inline-block;">
+                                <select class="form-select form-select-sm me-2"
+                                    style="width: 120px; display: inline-block;">
                                     <option>January 2023</option>
                                     <option>February 2023</option>
                                     <option selected>March 2023</option>
@@ -878,7 +992,8 @@
                                             <td>
                                                 <a href="#" class="btn btn-sm btn-primary"><i class="bi bi-eye"></i></a>
                                                 <a href="#" class="btn btn-sm btn-info"><i class="bi bi-pencil"></i></a>
-                                                <a href="#" class="btn btn-sm btn-success"><i class="bi bi-printer"></i></a>
+                                                <a href="#" class="btn btn-sm btn-success"><i
+                                                        class="bi bi-printer"></i></a>
                                             </td>
                                         </tr>
                                         <tr>
@@ -894,7 +1009,8 @@
                                             <td>
                                                 <a href="#" class="btn btn-sm btn-primary"><i class="bi bi-eye"></i></a>
                                                 <a href="#" class="btn btn-sm btn-info"><i class="bi bi-pencil"></i></a>
-                                                <a href="#" class="btn btn-sm btn-success"><i class="bi bi-printer"></i></a>
+                                                <a href="#" class="btn btn-sm btn-success"><i
+                                                        class="bi bi-printer"></i></a>
                                             </td>
                                         </tr>
                                         <tr>
@@ -910,7 +1026,8 @@
                                             <td>
                                                 <a href="#" class="btn btn-sm btn-primary"><i class="bi bi-eye"></i></a>
                                                 <a href="#" class="btn btn-sm btn-info"><i class="bi bi-pencil"></i></a>
-                                                <a href="#" class="btn btn-sm btn-success"><i class="bi bi-printer"></i></a>
+                                                <a href="#" class="btn btn-sm btn-success"><i
+                                                        class="bi bi-printer"></i></a>
                                             </td>
                                         </tr>
                                         <tr>
@@ -926,7 +1043,8 @@
                                             <td>
                                                 <a href="#" class="btn btn-sm btn-primary"><i class="bi bi-eye"></i></a>
                                                 <a href="#" class="btn btn-sm btn-info"><i class="bi bi-pencil"></i></a>
-                                                <a href="#" class="btn btn-sm btn-success"><i class="bi bi-printer"></i></a>
+                                                <a href="#" class="btn btn-sm btn-success"><i
+                                                        class="bi bi-printer"></i></a>
                                             </td>
                                         </tr>
                                         <tr>
@@ -942,7 +1060,8 @@
                                             <td>
                                                 <a href="#" class="btn btn-sm btn-primary"><i class="bi bi-eye"></i></a>
                                                 <a href="#" class="btn btn-sm btn-info"><i class="bi bi-pencil"></i></a>
-                                                <a href="#" class="btn btn-sm btn-success"><i class="bi bi-printer"></i></a>
+                                                <a href="#" class="btn btn-sm btn-success"><i
+                                                        class="bi bi-printer"></i></a>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -1104,8 +1223,8 @@
     </div>
 
     <!-- Process Salary Modal -->
-    <div class="modal fade" id="processSalaryModal" tabindex="-1" role="dialog" aria-labelledby="processSalaryModalLabel"
-        aria-hidden="true">
+    <div class="modal fade" id="processSalaryModal" tabindex="-1" role="dialog"
+        aria-labelledby="processSalaryModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
@@ -1174,7 +1293,8 @@
                         </div>
 
                         <div class="alert alert-info">
-                            <i class="bi bi-info-circle-fill"></i> The system will calculate salaries based on attendance records and staff salary information.
+                            <i class="bi bi-info-circle-fill"></i> The system will calculate salaries based on
+                            attendance records and staff salary information.
                         </div>
                     </form>
                 </div>
@@ -1225,7 +1345,7 @@
         });
 
         // Initialize DataTables
-        $(document).ready(function() {
+        $(document).ready(function () {
             $('#staffTable').DataTable();
             $('#attendanceTable').DataTable({
                 scrollX: true
