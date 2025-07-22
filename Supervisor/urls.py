@@ -10,5 +10,6 @@ urlpatterns = [
 
     path('create-job-card/', views.create_job_card, name='create_job_card'),
     path('returnparts/', views.returnparts, name='returnparts'),
+    path('update_job_card/', views.update_job_card, name='update_job_card'),
 
 ]
