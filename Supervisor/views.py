@@ -63,8 +63,12 @@ def Supervisor_single_jobcard(request,id):
                     PartsTotal=PartsTotal+(int(i.part_obj.Price)*int(i.quantity))
                 labercost=float(Jo.labor_hours)*float(Jo.hourly_rate)
                 
-
-                data={"name":user_name,"JobCardDBdata":JobCardDBdata[0],"parts":parts,"PartsTotal":PartsTotal,"labercost":labercost}
+                worker=[]
+                w=UsesDB.objects.all()
+                for i in w:
+                    if i.position!="Owner":
+                        worker.append({"id":i.id,"name":i.name,"position":i.position})
+                data={"name":user_name,"JobCardDBdata":JobCardDBdata[0],"parts":parts,"PartsTotal":PartsTotal,"labercost":labercost,"worker":worker}
                 return render(request,"Supervisor_single_jobcard.html",data)
             else:return redirect('Supervisor_jobcard')
     else:return redirect("login")
@@ -75,7 +79,84 @@ def returnparts(request):
     p=StockDB.objects.all()
     for i in p:
         partsdata.append({"name":i.ItemName,"id":i.id,"quantity":i.Quantity,"Price":i.Price})
+    
     return JsonResponse({'success': True,'parts': partsdata})
+
+
+@csrf_exempt  # Only if you're having CSRF issues during development
+def update_job_card(request):
+    
+    try:
+        # Get the job card to update
+        job_card_id = request.POST.get('job_card_id')
+        job_card = JobCardDB.objects.get(id=job_card_id)
+
+        up=""
+
+        
+        # Update basic job card info
+        # job_card.status = request.POST.get('status', job_card.status)
+        # job_card.paymentStatus = request.POST.get('payment_status', job_card.paymentStatus)
+        # job_card.received_date = request.POST.get('received_date', job_card.received_date)
+        # job_card.delivery_date = request.POST.get('delivery_date', job_card.delivery_date)
+        # job_card.work_description = request.POST.get('work_description', job_card.work_description)
+        # job_card.labor_hours = float(request.POST.get('labor_hours', job_card.labor_hours))
+        # job_card.hourly_rate = float(request.POST.get('hourly_rate', job_card.hourly_rate))
+        # job_card.discount = float(request.POST.get('discount', job_card.discount))
+        
+        # # Update customer info
+        # customer = job_card.customer
+        # customer.name = request.POST.get('customer_name', customer.name)
+        # customer.phone = request.POST.get('customer_phone', customer.phone)
+        # customer.email = request.POST.get('customer_email', customer.email)
+        # customer.address = request.POST.get('customer_address', customer.address)
+        # customer.customernotes = request.POST.get('customer_notes', customer.customernotes)
+        # customer.save()
+        
+        # # Update vehicle info
+        # vehicle = job_card.vehicle
+        # vehicle.registration_no = request.POST.get('registration_no', vehicle.registration_no)
+        # vehicle.model = request.POST.get('vehicle_model', vehicle.model)
+        # vehicle.chassis_no = request.POST.get('chassis_no', vehicle.chassis_no)
+        # vehicle.engine_no = request.POST.get('engine_no', vehicle.engine_no)
+        # vehicle.petrol_level = request.POST.get('petrol_level', vehicle.petrol_level)
+        # vehicle.notes = request.POST.get('vehicle_notes', vehicle.notes)
+        # vehicle.save()
+        
+        # Handle parts - first clear existing parts
+        # JobCardPart.objects.filter(job_card=job_card).delete()
+        
+        # # Add new parts from the form
+        # parts_data = json.loads(request.POST.get('parts', '[]'))
+        # for part_data in parts_data:
+        #     try:
+        #         part = Part.objects.get(id=part_data['part_id'])
+        #         JobCardPart.objects.create(
+        #             job_card=job_card,
+        #             part=part,
+        #             quantity=int(part_data['quantity']),
+        #             price=float(part_data['price'])
+        #         )
+        #     except Part.DoesNotExist:
+        #         continue  # Skip if part doesn't exist
+        
+        # # Recalculate total payment (adjust according to your logic)
+        # parts_total = sum(jp.price * jp.quantity for jp in job_card.jobcardpart_set.all())
+        # labor_cost = job_card.labor_hours * job_card.hourly_rate
+        # discount_amount = (parts_total + labor_cost) * (job_card.discount / 100)
+        # job_card.TotalPayent = (parts_total + labor_cost) - discount_amount
+        # job_card.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Job card updated successfully',
+            'total_payment': job_card.TotalPayent
+        })
+        
+    # except JobCard.DoesNotExist:
+    #     return JsonResponse({'success': False, 'message': 'Job card not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
 def is_valid_email(email):
     # More comprehensive regex pattern for email validation
