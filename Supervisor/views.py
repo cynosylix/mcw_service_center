@@ -4,7 +4,6 @@ from Owner.models import UsesDB
 from Spare_Purchase.models import StockDB
 from django.db.models import Q
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 import re
 from Supervisor.models import CustomerDB, JobCardDB, JobCardPartsDB, VehicleDB, Attendance
 from django.views.decorators.csrf import csrf_exempt
@@ -342,6 +341,7 @@ def attendance_list(request):
     
 
 from datetime import datetime
+from calendar import monthrange
 @csrf_exempt
 def update_attendance(request, attendance_id):
     """Update attendance record"""
@@ -404,3 +404,63 @@ def update_attendance(request, attendance_id):
             return JsonResponse({'error': str(e)}, status=400)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
+
+
+def supervisor_view_staff_attendance(request):
+    user_id = request.session.get('user_id')
+    user_name = request.session.get('user_name')
+    position = request.session.get('user_position')
+    
+    if position == "Supervisor":
+        user_data = UsesDB.objects.exclude(position='Owner').exclude(position='Supervisor')
+        
+        # Get selected month and year (default to current)
+        now = datetime.now()
+        month = int(request.GET.get('month', now.month))
+        year = int(request.GET.get('year', now.year))
+        
+        # Get number of days in selected month
+        _, num_days = monthrange(year, month)
+        
+        # Get attendance data
+        attendance_data = Attendance.objects.filter(
+            employee__in=user_data,
+            date__year=year,
+            date__month=month
+        ).select_related('employee')
+        
+        # Create a better data structure for the template
+        staff_attendance = []
+        for staff in user_data:
+            # Initialize with empty data for each day
+            days = {day: '' for day in range(1, num_days+1)}
+            
+            # Fill in actual attendance data
+            for att in attendance_data.filter(employee=staff):
+                print(att.day_status)
+                days[att.date.day] = att.day_status
+            
+            staff_attendance.append({
+                'staff': staff,
+                'days': days,
+                'present_count': sum(1 for status in days.values() if status == 'present'),
+                'absent_count': sum(1 for status in days.values() if status == 'absent'),
+                'leave_count': sum(1 for status in days.values() if status == 'on_leave'),
+            })
+            # print(staff_attendance)   
+        
+        context = {
+            'user_data': user_data,  # Keep original for other parts of template
+            'staff_attendance': staff_attendance,  # New for attendance table
+            'user_name': user_name,
+            'position': position,
+            'selected_month': month,
+            'selected_year': year,
+            'month_name': datetime(year, month, 1).strftime('%B'),
+            'days_range': range(1, num_days+1),
+        }
+        return render(request, "supervisor_view_staff_attendance.html", context)
+    else:
+        return render(request, "supervisor_view_staff_attendance.html")

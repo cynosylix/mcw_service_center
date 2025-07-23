@@ -178,9 +178,7 @@ class Attendance(models.Model):
         self.overtime_hours = overtime_hours
         
         # Determine day status
-        if self.overtime_hours > 0:
-            self.day_status = 'overtime'
-        elif self.morning_status == 'absent' and self.afternoon_status == 'absent':
+        if self.morning_status == 'absent' and self.afternoon_status == 'absent':
             self.day_status = 'absent'
         elif self.morning_status == 'present' and self.afternoon_status == 'present':
             self.day_status = 'present'
@@ -190,3 +188,5 @@ class Attendance(models.Model):
             self.day_status = 'half_day'
         elif self.morning_status == 'on_leave' or self.afternoon_status == 'on_leave':
             self.day_status = 'on_leave'
+        else:
+            self.day_status = 'absent'

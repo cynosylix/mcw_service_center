@@ -11,4 +11,9 @@ urlpatterns = [
     path('StockPg', views.StockPg, name='StockPg'),
 
     path('login_btn',views.login_btn),
+
+
+    path('owner_attendance/', views.owner_attendance_page, name='attendance_page'),
+    path('owner_attendance/api/', views.owner_attendance_list, name='attendance_list'),
+    path('owner_attendance/api/<int:attendance_id>/', views.owner_update_attendance, name='update_attendance'),
 ]

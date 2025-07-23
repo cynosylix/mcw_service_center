@@ -169,6 +169,34 @@
                 margin-left: 250px;
             }
         }
+
+
+
+
+        /* Add these to your existing styles */
+.present {
+    background-color: #d4edda;
+}
+.absent {
+    background-color: #f8d7da;
+}
+.leave {
+    background-color: #fff3cd;
+}
+.holiday {
+    background-color: #e2e3e5;
+}
+.overtime {
+    background-color: #f8d7da;
+    color: #842029;
+}
+
+/* For the attendance table cells */
+#attendanceTable td {
+    text-align: center;
+    padding: 5px;
+    font-size: 12px;
+}
     </style>
 </head>
 
@@ -299,6 +327,9 @@
             <div class="d-sm-flex align-items-center justify-content-between mb-4">
                 <h1 class="h3 mb-0 text-gray-800">Staff Management</h1>
                 <div>
+                     <a href="owner_attendance" class="btn btn-info" >
+                        <i class="bi bi-plus-circle"></i> Add attendance
+                    </a>
                     <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStaffModal">
                         <i class="bi bi-plus-circle"></i> Add New Staff
                     </a>
@@ -556,311 +587,112 @@
                     </div>
                 </div>
 
-                <!-- Attendance Tab -->
-                <div class="tab-pane fade" id="attendance" role="tabpanel">
-                    <div class="card shadow mb-4">
-                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                            <h6 class="m-0 font-weight-bold text-primary">Monthly Attendance</h6>
-                            <div>
-                                <select class="form-select form-select-sm me-2"
-                                    style="width: 120px; display: inline-block;">
-                                    <option>January 2023</option>
-                                    <option>February 2023</option>
-                                    <option selected>March 2023</option>
-                                    <option>April 2023</option>
-                                </select>
-                                <button class="btn btn-sm btn-primary">
-                                    <i class="bi bi-download"></i> Export
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-bordered" id="attendanceTable">
-                                    <thead>
-                                        <tr>
-                                            <th>Staff Name</th>
-                                            <th>1</th>
-                                            <th>2</th>
-                                            <th>3</th>
-                                            <th>4</th>
-                                            <th>5</th>
-                                            <th>6</th>
-                                            <th>7</th>
-                                            <th>8</th>
-                                            <th>9</th>
-                                            <th>10</th>
-                                            <th>11</th>
-                                            <th>12</th>
-                                            <th>13</th>
-                                            <th>14</th>
-                                            <th>15</th>
-                                            <th>16</th>
-                                            <th>17</th>
-                                            <th>18</th>
-                                            <th>19</th>
-                                            <th>20</th>
-                                            <th>21</th>
-                                            <th>22</th>
-                                            <th>23</th>
-                                            <th>24</th>
-                                            <th>25</th>
-                                            <th>26</th>
-                                            <th>27</th>
-                                            <th>28</th>
-                                            <th>29</th>
-                                            <th>30</th>
-                                            <th>31</th>
-                                            <th>Present</th>
-                                            <th>Absent</th>
-                                            <th>Leave</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>Michael Johnson</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="holiday">H</td>
-                                            <td class="holiday">H</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="holiday">H</td>
-                                            <td class="holiday">H</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="holiday">H</td>
-                                            <td class="holiday">H</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td>24</td>
-                                            <td>0</td>
-                                            <td>0</td>
-                                        </tr>
-                                        <tr>
-                                            <td>David Wilson</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="holiday">H</td>
-                                            <td class="holiday">H</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="absent">A</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="holiday">H</td>
-                                            <td class="holiday">H</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="holiday">H</td>
-                                            <td class="holiday">H</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="leave">L</td>
-                                            <td class="leave">L</td>
-                                            <td class="present">P</td>
-                                            <td>22</td>
-                                            <td>1</td>
-                                            <td>2</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Robert Brown</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="holiday">H</td>
-                                            <td class="holiday">H</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="holiday">H</td>
-                                            <td class="holiday">H</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="holiday">H</td>
-                                            <td class="holiday">H</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td>24</td>
-                                            <td>0</td>
-                                            <td>0</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Sarah Miller</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="holiday">H</td>
-                                            <td class="holiday">H</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="holiday">H</td>
-                                            <td class="holiday">H</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="holiday">H</td>
-                                            <td class="holiday">H</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td>24</td>
-                                            <td>0</td>
-                                            <td>0</td>
-                                        </tr>
-                                        <tr>
-                                            <td>James Taylor</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="holiday">H</td>
-                                            <td class="holiday">H</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="holiday">H</td>
-                                            <td class="holiday">H</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="holiday">H</td>
-                                            <td class="holiday">H</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td class="present">P</td>
-                                            <td>24</td>
-                                            <td>0</td>
-                                            <td>0</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+              <!-- In your template, load the custom filters at the top -->
+{% load custom_filters %}
 
-                    <!-- Attendance Summary -->
-                    <div class="row">
-                        <div class="col-md-4 mb-4">
-                            <div class="card border-left-success shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                                Total Present Days (Avg)</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">23.6</div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <i class="bi bi-check-circle-fill text-success"
-                                                style="font-size: 2rem;"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+<!-- Attendance Table Section - Only change this part -->
+<div class="tab-pane fade" id="attendance" role="tabpanel">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Monthly Attendance - {{ month_name }} {{ selected_year }}</h6>
+            <div>
+                <select class="form-select form-select-sm me-2" style="width: 120px; display: inline-block;">
+                    <option>January 2023</option>
+                    <option>February 2023</option>
+                    <option selected>March 2023</option>
+                    <option>April 2023</option>
+                </select>
+                <button class="btn btn-sm btn-primary">
+                    <i class="bi bi-download"></i> Export
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="attendanceTable">
+                    <thead>
+                        <tr>
+                            <th>Staff Name</th>
+                            {% for day in days_range %}
+                                <th>{{ day }}</th>
+                            {% endfor %}
+                            <th>Present</th>
+                            <th>Absent</th>
+                            <th>Leave</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in staff_attendance %}
+                        <tr>
+                            <td>{{ entry.staff.name }}</td>
+                            {% for day in days_range %}
+                                <td class="{{ entry.days|get_item:day|lower }}">
+                                    {{ entry.days|get_item:day|slice:":1"|upper }}
+                                </td>
+                            {% endfor %}
+                            <td>{{ entry.present_count }}</td>
+                            <td>{{ entry.absent_count }}</td>
+                            <td>{{ entry.leave_count }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attendance Summary (unchanged) -->
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Total Present Days (Avg)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">23.6</div>
                         </div>
-                        <div class="col-md-4 mb-4">
-                            <div class="card border-left-danger shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
-                                                Total Absent Days (Avg)</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">0.2</div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <i class="bi bi-x-circle-fill text-danger" style="font-size: 2rem;"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-4">
-                            <div class="card border-left-warning shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                                Total Leave Days (Avg)</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">0.4</div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <i class="bi bi-info-circle-fill text-warning" style="font-size: 2rem;"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="col-auto">
+                            <i class="bi bi-check-circle-fill text-success" style="font-size: 2rem;"></i>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Total Absent Days (Avg)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">0.2</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-x-circle-fill text-danger" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Total Leave Days (Avg)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">0.4</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-info-circle-fill text-warning" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
                 <!-- Salary & Payroll Tab -->
                 <div class="tab-pane fade" id="salary" role="tabpanel">

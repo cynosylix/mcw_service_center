@@ -182,10 +182,10 @@
 
 <body id="page-top">
     <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
+     <div class="sidebar" id="sidebar">
         <a class="sidebar-brand d-flex align-items-center justify-content-center" href="#">
             <img src="{% static 'img/logo.png' %}" alt="MCW" height="50" class="me-2">
-            <span>MCW CRM</span>
+            <span style="color: #f8f9fc;">MCW </span>
         </a>
 
         <hr class="sidebar-divider">
@@ -193,14 +193,21 @@
         <div class="sidebar-heading">Core</div>
 
         <li class="nav-item">
-            <a class="nav-link active" href="/Supervisor/Supervisor_home">
+            <a class="nav-link" href="/OwnerHome">
                 <i class="bi bi-speedometer2"></i>
                 <span>Dashboard</span>
             </a>
         </li>
 
+        <!-- <li class="nav-item">
+            <a class="nav-link" href="/OwnerCustomerPg">
+                <i class="bi bi-people"></i>
+                <span>Customers</span>
+            </a>
+        </li> -->
+
         <li class="nav-item">
-            <a class="nav-link" href="/Supervisor/Supervisor_jobcard">
+            <a class="nav-link" href="/JobCardpg">
                 <i class="bi bi-briefcase"></i>
                 <span>Job Card</span>
             </a>
@@ -211,7 +218,14 @@
         <div class="sidebar-heading">Management</div>
 
         <li class="nav-item">
-            <a class="nav-link" href="/Supervisor/supervisor_view_stock">
+            <a class="nav-link active" href="/ViewStaffPg">
+                <i class="bi bi-file-earmark-text"></i>
+                <span>Staff</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="/StockPg">
                 <i class="bi bi-box-seam"></i>
                 <span>Stock</span>
             </a>
@@ -434,7 +448,7 @@
             `;
 
             // Replace with your actual API endpoint
-            fetch(`/Supervisor/attendance/api`)
+            fetch(`/owner_attendance/api`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
@@ -630,7 +644,7 @@
             if (data.overtime_check_in) data.overtime_check_in = formatTime(data.overtime_check_in);
             if (data.overtime_check_out) data.overtime_check_out = formatTime(data.overtime_check_out);
 
-            fetch(`/Supervisor/attendance/api/${id}/`, {
+            fetch(`/owner_attendance/api/${id}/`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',

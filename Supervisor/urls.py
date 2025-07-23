@@ -18,5 +18,7 @@ urlpatterns = [
     path('attendance/', views.attendance_page, name='attendance_page'),
     path('attendance/api/', views.attendance_list, name='attendance_list'),
     path('attendance/api/<int:attendance_id>/', views.update_attendance, name='update_attendance'),
+
+    path('supervisor_view_staff_attendance/', views.supervisor_view_staff_attendance, name='supervisor_view_staff_attendance'),
     
 ]
