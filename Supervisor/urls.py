@@ -13,4 +13,10 @@ urlpatterns = [
     path('returnparts/', views.returnparts, name='returnparts'),
     path('update_job_card/', views.update_job_card, name='update_job_card'),
 
+
+
+    path('attendance/', views.attendance_page, name='attendance_page'),
+    path('attendance/api/', views.attendance_list, name='attendance_list'),
+    path('attendance/api/<int:attendance_id>/', views.update_attendance, name='update_attendance'),
+    
 ]

@@ -6,7 +6,11 @@ from django.db.models import Q
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import re
-from Supervisor.models import CustomerDB, JobCardDB, JobCardPartsDB, VehicleDB
+from Supervisor.models import CustomerDB, JobCardDB, JobCardPartsDB, VehicleDB, Attendance
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from django.shortcuts import render, redirect
+import json
 
 def Supervisor_home(request):
     return render(request,"SupervisorHome.html")
@@ -24,8 +28,28 @@ def Supervisor_jobcard(request):
 
     else:return redirect("login")
 
+# def attendance_page(request):
+#     user_id=request.session['user_id'] 
+#     user_name=request.session['user_name'] 
+#     position=request.session['user_position'] 
+#     if position == "Supervisor":
+#         return render(request, "attendance.html", {"user_name": user_name})
+#     else:
+#         return redirect("login")
+
+def api_employees(request):
+    if request.method == "GET":
+        employees = UsesDB.objects.filter(position__in=["Mechanic", "Senior Mechanic", "Helper", "Other"])  # Adjust positions as needed
+        employee_list = [{"id": emp.id, "name": emp.name} for emp in employees]
+        return JsonResponse(employee_list, safe=False)
+    else:
+        return JsonResponse({"error": "Method not allowed"}, status=405)
 
 
+
+
+
+    
 def Supervisor_jobcard_create_pg(request):
     user_id=request.session['user_id'] 
     user_name=request.session['user_name'] 
@@ -239,3 +263,144 @@ def supervisor_view_stock(request):
         data={"user":user_name,"TotalItems":TotalItems,"LowStock":LowStock,"OutofStock":OutofStock,"stockdata":stok,"TotalstokValue":TotalstokValue}
         # return render(request,"Stock.html",{'data': json.dumps(data)})
     return render(request, "Supervisor_view_stock.html",{'data': json.dumps(data)})
+
+
+
+from django.views.decorators.http import require_http_methods
+from datetime import date, datetime
+
+
+
+
+def attendance_page(request):
+    user_id = request.session.get('user_id')
+    user_name = request.session.get('user_name')
+    position = request.session.get('user_position')
+    if position == "Supervisor":
+        return render(request, "attendance.html", {"user_name": user_name})
+    return redirect("login")
+
+
+@require_http_methods(["GET"])
+def attendance_list(request):
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+   
+    try:
+        attendance_data = []
+        employees = UsesDB.objects.exclude(position='Owner').exclude(position='Supervisor')
+        
+        for employee in employees:
+            # Get or create attendance record
+            attendance, created = Attendance.objects.get_or_create(
+                employee=employee,
+                defaults={
+                    'morning_status': 'absent',
+                    'afternoon_status': 'absent',
+                    'day_status': 'absent'
+                }
+            )
+            
+            attendance_data.append({
+                'id': attendance.id,
+                'employee_id': employee.id,
+                'employee_name': employee.name,
+                'position': employee.position,
+                'date': attendance.date,
+                
+                # Morning data
+                'morning_check_in': attendance.morning_check_in.isoformat()[:5] if attendance.morning_check_in else None,
+                'morning_check_out': attendance.morning_check_out.isoformat()[:5] if attendance.morning_check_out else None,
+                'morning_status': attendance.morning_status,
+                'morning_remarks': attendance.morning_remarks,
+                
+                # Afternoon data
+                'afternoon_check_in': attendance.afternoon_check_in.isoformat()[:5] if attendance.afternoon_check_in else None,
+                'afternoon_check_out': attendance.afternoon_check_out.isoformat()[:5] if attendance.afternoon_check_out else None,
+                'afternoon_status': attendance.afternoon_status,
+                'afternoon_remarks': attendance.afternoon_remarks,
+                
+                # Overtime data
+                'overtime_check_in': attendance.overtime_check_in.isoformat()[:5] if attendance.overtime_check_in else None,
+                'overtime_check_out': attendance.overtime_check_out.isoformat()[:5] if attendance.overtime_check_out else None,
+                'overtime_hours': float(attendance.overtime_hours),
+                'overtime_approved': attendance.overtime_approved,
+                'overtime_remarks': attendance.overtime_remarks,
+                
+                # Summary data
+                'total_working_hours': float(attendance.total_working_hours),
+                'late_hours': float(attendance.late_hours),
+                'day_status': attendance.day_status,
+                'daily_remarks': attendance.daily_remarks,
+            })
+            
+        return JsonResponse(attendance_data, safe=False)
+    
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+    
+
+from datetime import datetime
+@csrf_exempt
+def update_attendance(request, attendance_id):
+    """Update attendance record"""
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+    if request.method == "PATCH":
+        try:
+            attendance = Attendance.objects.get(pk=attendance_id)
+            data = json.loads(request.body)
+
+            def parse_time(time_str):
+                if time_str:
+                    return datetime.strptime(time_str, '%H:%M').time()
+                return None
+            
+            # Update morning session
+            if 'morning_check_in' in data:
+                attendance.morning_check_in = parse_time(data['morning_check_in'])
+            if 'morning_check_out' in data:
+                attendance.morning_check_out = parse_time(data['morning_check_out'])
+            if 'morning_status' in data:
+                attendance.morning_status = data['morning_status']
+                
+            # Update afternoon session
+            if 'afternoon_check_in' in data:
+                attendance.afternoon_check_in = parse_time(data['afternoon_check_in'])
+            if 'afternoon_check_out' in data:
+                attendance.afternoon_check_out = parse_time(data['afternoon_check_out'])
+            if 'afternoon_status' in data:
+                attendance.afternoon_status = data['afternoon_status']
+                
+            # Update overtime session
+            if 'overtime_check_in' in data:
+                attendance.overtime_check_in = parse_time(data['overtime_check_in'])
+            if 'overtime_check_out' in data:
+                attendance.overtime_check_out = parse_time(data['overtime_check_out'])
+            if 'overtime_approved' in data:
+                attendance.overtime_approved = data['overtime_approved']
+            if 'overtime_remarks' in data:
+                attendance.overtime_remarks = data['overtime_remarks']
+            
+            # Recalculate totals and save
+            attendance.calculate_working_hours()
+            attendance.save()
+            
+            # Return updated data
+            return JsonResponse({
+                'id': attendance.id,
+                'total_working_hours': float(attendance.total_working_hours),
+                'late_hours': float(attendance.late_hours),
+                'overtime_hours': float(attendance.overtime_hours),
+                'day_status': attendance.day_status,
+                'message': 'Attendance updated successfully'
+            })
+            
+        except Attendance.DoesNotExist:
+            return JsonResponse({'error': 'Attendance record not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
