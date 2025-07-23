@@ -393,7 +393,6 @@
             const statusClass = {
                 'present': 'badge-present',
                 'absent': 'badge-absent',
-                'late': 'badge-late',
                 'half_day': 'badge-halfday',
                 'on_leave': 'badge-leave',
                 'overtime': 'badge-overtime'
@@ -508,7 +507,6 @@
                             <select class="form-select form-select-sm mb-2 morning-status">
                                 <option value="present" ${employee.morning_status === 'present' ? 'selected' : ''}>Present</option>
                                 <option value="absent" ${employee.morning_status === 'absent' ? 'selected' : ''}>Absent</option>
-                                <option value="late" ${employee.morning_status === 'late' ? 'selected' : ''}>Late</option>
                             </select>
                             <button class="btn btn-sm btn-primary w-100 morning-save">
                                 <i class="bi bi-save me-1"></i>Save Morning
@@ -528,7 +526,6 @@
                             <select class="form-select form-select-sm mb-2 afternoon-status">
                                 <option value="present" ${employee.afternoon_status === 'present' ? 'selected' : ''}>Present</option>
                                 <option value="absent" ${employee.afternoon_status === 'absent' ? 'selected' : ''}>Absent</option>
-                                <option value="late" ${employee.afternoon_status === 'late' ? 'selected' : ''}>Late</option>
                             </select>
                             <button class="btn btn-sm btn-primary w-100 afternoon-save">
                                 <i class="bi bi-save me-1"></i>Save Afternoon

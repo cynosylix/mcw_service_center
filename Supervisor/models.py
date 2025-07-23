@@ -93,7 +93,6 @@ class Attendance(models.Model):
     STATUS_CHOICES = [
         ('present', 'Present'),
         ('absent', 'Absent'),
-        ('late', 'Late'),
         ('half_day', 'Half Day'),
         ('on_leave', 'On Leave'),
         ('overtime', 'Overtime'),
@@ -104,14 +103,14 @@ class Attendance(models.Model):
     
     # Morning session
     morning_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='absent')
-    morning_check_in = models.TimeField(null=True, blank=True)
-    morning_check_out = models.TimeField(null=True, blank=True)
+    morning_check_in = models.TimeField(null=True, blank=True, default='08:30')
+    morning_check_out = models.TimeField(null=True, blank=True, default='13:00')
     morning_remarks = models.TextField(null=True, blank=True)
     
     # Afternoon session
     afternoon_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='absent')
-    afternoon_check_in = models.TimeField(null=True, blank=True)
-    afternoon_check_out = models.TimeField(null=True, blank=True)
+    afternoon_check_in = models.TimeField(null=True, blank=True, default='14:00')
+    afternoon_check_out = models.TimeField(null=True, blank=True, default='17:00')
     afternoon_remarks = models.TextField(null=True, blank=True)
     
     # Overtime session
@@ -150,10 +149,13 @@ class Attendance(models.Model):
             morning_hours = (morning_end - morning_start).total_seconds() / 3600
             total_hours += morning_hours
             
-            # Check for late arrival (after 8:30 AM)
-            if self.morning_check_in > datetime.strptime('08:30', '%H:%M').time():
-                late_start = datetime.combine(date.today(), datetime.strptime('08:30', '%H:%M').time())
-                late_hours += (morning_start - late_start).total_seconds() / 3600
+            # Only update morning_status if not manually set to 'present'
+            if self.morning_status != 'present':
+                # Removed late logic
+                self.morning_status = 'present'
+        else:
+            if self.morning_status != 'present':
+                self.morning_status = 'absent'
         
         # Calculate afternoon session
         if self.afternoon_check_in and self.afternoon_check_out:
@@ -162,10 +164,13 @@ class Attendance(models.Model):
             afternoon_hours = (afternoon_end - afternoon_start).total_seconds() / 3600
             total_hours += afternoon_hours
             
-            # Check for late arrival (after 1:00 PM)
-            if self.afternoon_check_in > datetime.strptime('13:00', '%H:%M').time():
-                late_start = datetime.combine(date.today(), datetime.strptime('13:00', '%H:%M').time())
-                late_hours += (afternoon_start - late_start).total_seconds() / 3600
+            # Only update afternoon_status if not manually set to 'present'
+            if self.afternoon_status != 'present':
+                # Removed late logic
+                self.afternoon_status = 'present'
+        else:
+            if self.afternoon_status != 'present':
+                self.afternoon_status = 'absent'
         
         # Calculate overtime
         if self.overtime_check_in and self.overtime_check_out:
@@ -174,16 +179,14 @@ class Attendance(models.Model):
             overtime_hours = (overtime_end - overtime_start).total_seconds() / 3600
         
         self.total_working_hours = total_hours
-        self.late_hours = late_hours
+        self.late_hours = 0
         self.overtime_hours = overtime_hours
         
         # Determine day status
         if self.morning_status == 'absent' and self.afternoon_status == 'absent':
             self.day_status = 'absent'
-        elif self.morning_status == 'present' and self.afternoon_status == 'present':
+        elif self.morning_status == 'present' or self.afternoon_status == 'present':
             self.day_status = 'present'
-        elif self.morning_status == 'late' or self.afternoon_status == 'late':
-            self.day_status = 'late'
         elif self.morning_status == 'half_day' or self.afternoon_status == 'half_day':
             self.day_status = 'half_day'
         elif self.morning_status == 'on_leave' or self.afternoon_status == 'on_leave':
