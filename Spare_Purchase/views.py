@@ -90,6 +90,7 @@ def add_stock(request):
                         PurchaseStatus=purch
 
                     )
+                    
                     new_stock.save()  # Explicit save (though `create()` already does this)
                     return JsonResponse({'status': 'success', 'message': 'Item added!'})
                 else:#updaate

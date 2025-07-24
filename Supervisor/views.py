@@ -285,7 +285,7 @@ def create_job_card(request):
             
             # Process job card data
             job_data = data.get('job', {})
-            print(job_data)
+            # print(job_data)
             # Create job card model here
             staffbj=UsesDB.objects.get(id=int(job_data['assigned_staff']))
             JobCardobj=JobCardDB.objects.create(customer=cusobj,vehicle=VehicleDBobj,job_type=job_data['type'],received_date=job_data['received_date'],
@@ -297,7 +297,9 @@ def create_job_card(request):
             # Process parts data
             parts_data = data.get('parts', [])
             # Create job card parts relationships here
-
+            # stok=StockDB.objects.get(ItemCode=data['stockid'])
+            # stok.Quantity=stok.Quantity-int(data['Quantity'])
+            # stok.save()
             for i in parts_data:
                 part_obj=StockDB.objects.get(id=int(i['id']))
                 JobCardPartsDB.objects.create(JobCart=JobCardobj,part_obj=part_obj,quantity=i["quantity"])
