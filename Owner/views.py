@@ -4,7 +4,7 @@ from Owner.models import UsesDB
 from Spare_Purchase.models import StockDB
 from django.http import JsonResponse
 import json
-
+from django.db.models import Q
 from Supervisor.models import JobCardDB, JobCardPartsDB
 
 # Create your views here.
@@ -17,6 +17,27 @@ def Owner_home(request):
 def OwnerCustomerPg(request):
     return render(request,"OwnerCustomerPg.html")
 
+def Owner_jobcard_create_pg(request):
+    user_id=request.session['user_id'] 
+    user_name=request.session['user_name'] 
+    position=request.session['user_position'] 
+    if position=="Owner":
+        usertable=UsesDB.objects.all()
+        worker=[]
+        stock=[]
+        for i in usertable:
+            if i.position!="Owner" and i.position!="Supervisor" and i.position!="Purchase Staff":
+                worker.append({"id":i.id,"name":i.name,"position":i.position,})
+        available_items = StockDB.objects.filter(Q(Status='In Stock') | Q(Status='Low Stock'))
+        for i in available_items:
+            stock.append({"id":i.id,"name":i.ItemName,"quantity":i.Quantity,"price":i.Price})
+        
+        data={"worker":worker,"stock":stock,"user_name":user_name,"user_id":user_id}
+        
+        return render(request,"Owner_jobcard_create_pg.html",{'data': json.dumps(data)})
+
+    else:return redirect("login")
+    # return render(request,"Owner_jobcard_create_pg.html")
 def JobCardpg(request):
     user_id=request.session['user_id'] 
     user_name=request.session['user_name'] 

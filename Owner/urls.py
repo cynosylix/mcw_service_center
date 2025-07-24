@@ -9,6 +9,7 @@ urlpatterns = [
     path('view_single_job/<id>', views.view_single_job, name='view_single_job'),
     path('ViewStaffPg', views.ViewStaffPg, name='ViewStaffPg'),
     path('StockPg', views.StockPg, name='StockPg'),
+    path('Owner_jobcard_create_pg', views.Owner_jobcard_create_pg, name='Owner_jobcard_create_pg'),
 
     path('login_btn',views.login_btn),
 ]
