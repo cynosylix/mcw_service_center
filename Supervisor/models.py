@@ -13,7 +13,6 @@ class CustomerDB(models.Model):
     email = models.EmailField(blank=True, null=True)
     address = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    editeed_details = models.TextField(blank=True, null=True)
     customernotes = models.TextField(blank=True,  null=True)
     
     def __str__(self):
@@ -54,6 +53,12 @@ class JobCardDB(models.Model):
         ('Completed', 'Completed'),
         ('On Hold', 'On Hold'),
     ]
+    PaymentMethod_CHOICES = [
+        ('UPI', 'UPI'),
+        ('Cash', 'Cash'),
+        ('Credit/Debit Card', 'Credit/Debit Card'),
+        ('Bank Transfe', 'Bank Transfe'),
+    ]
     id = models.AutoField(primary_key=True)
     customer = models.ForeignKey(CustomerDB, on_delete=models.CASCADE, blank=True, null=True)
     vehicle = models.ForeignKey(VehicleDB, on_delete=models.CASCADE, blank=True, null=True)
@@ -67,10 +72,14 @@ class JobCardDB(models.Model):
     labor_hours = models.DecimalField(max_digits=5, decimal_places=2, default=1, blank=True, null=True)
     hourly_rate = models.DecimalField(max_digits=10, decimal_places=2, default=50.00, blank=True, null=True)
     discount = models.DecimalField(max_digits=5, decimal_places=2, default=0.00, blank=True, null=True)
-    TotalPayent = models.DecimalField(max_digits=10, decimal_places=2, default=50.00, blank=True, null=True)
+    TotalPayent = models.DecimalField(max_digits=10, decimal_places=2, default=00.00, blank=True, null=True)
+    paydPayent = models.DecimalField(max_digits=10, decimal_places=2, default=00.00, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    editeed_details = models.TextField(blank=True, null=True)
     paymentStatus= models.CharField(max_length=20, choices=PAYMENT_CHOICES, default='Pending', blank=True, null=True)
-    
+    PaymentMethod=models.CharField(max_length=20, choices=PaymentMethod_CHOICES, default='UPI', blank=True, null=True)
+    PaymentNotes= models.TextField(blank=True, null=True)
+    Paymentdonebynote= models.TextField(blank=True, null=True)
     
     def __str__(self):
         return f"JC-{self.id} - {self.customer.name} - {self.vehicle.registration_no}"

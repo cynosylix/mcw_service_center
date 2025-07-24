@@ -1,3 +1,4 @@
+from itertools import zip_longest
 from django.shortcuts import render,redirect
 import json
 from Owner.models import UsesDB
@@ -91,7 +92,10 @@ def Supervisor_single_jobcard(request,id):
                 for i in w:
                     if i.position!="Owner":
                         worker.append({"id":i.id,"name":i.name,"position":i.position})
-                data={"name":user_name,"JobCardDBdata":JobCardDBdata[0],"parts":parts,"PartsTotal":PartsTotal,"labercost":labercost,"worker":worker}
+
+                paymentbalance=JobCardDBdata[0].TotalPayent-JobCardDBdata[0].paydPayent
+                print(paymentbalance)
+                data={"name":user_name,"JobCardDBdata":JobCardDBdata[0],"parts":parts,"PartsTotal":PartsTotal,"labercost":labercost,"worker":worker,"paymentbalance":paymentbalance}
                 return render(request,"Supervisor_single_jobcard.html",data)
             else:return redirect('Supervisor_jobcard')
     else:return redirect("login")
@@ -108,67 +112,149 @@ def returnparts(request):
 
 @csrf_exempt  # Only if you're having CSRF issues during development
 def update_job_card(request):
-    
+    user_id=request.session['user_id'] 
+    user_name=request.session['user_name'] 
+    position=request.session['user_position'] 
     try:
+        print("..........................")
         # Get the job card to update
         job_card_id = request.POST.get('job_card_id')
         job_card = JobCardDB.objects.get(id=job_card_id)
 
+        usertxt=f"{user_name} :- ({position}) change data = "
         up=""
+        ######################Update basic job card info############################
+        delivery_date=request.POST.get('delivery_date')
+        if str(delivery_date)!=str(job_card.delivery_date):
+            up=up+f"{job_card.delivery_date} : delivery date updated to :- {delivery_date},"
+            job_card.delivery_date = delivery_date
+            
+        assigned_staff_id=request.POST.get('assigned_staff_id')
+        assigned_staff_name=request.POST.get('assigned_staff_name')
+        if str(assigned_staff_id)!=str(job_card.assigned_staff.id):
+            up=up+f"{job_card.assigned_staff.name} :assigned staff updated to :- {assigned_staff_name},"
+            stffObj=UsesDB.objects.get(id=assigned_staff_id)
+            job_card.assigned_staff = stffObj
 
+        work_description=request.POST.get('work_description')
+        if str(work_description)!=str(job_card.work_description):
+            up=up+f"{job_card.work_description} : worker description updated to :- {work_description},"
+            job_card.work_description = work_description
+
+        status=request.POST.get('status')
+        if str(status)!=str(job_card.status):
+            up=up+f"{job_card.status} : worker description updated to :- {status},"
+            job_card.status = status
+
+        labor_hours=request.POST.get('labor_hours')
+        if str(labor_hours)!=str(job_card.labor_hours):
+            up=up+f"{job_card.labor_hours} : labor hours updated to :- {labor_hours},"
+            job_card.labor_hours = labor_hours
+
+        hourly_rate=request.POST.get('hourly_rate')
+        if str(hourly_rate)!=str(job_card.hourly_rate):
+            up=up+f"{job_card.hourly_rate} : hourly rate updated to :- {hourly_rate},"
+            job_card.hourly_rate=hourly_rate
+
+        discount=request.POST.get('discount')
+        if str(discount)!=str(job_card.discount):
+            up=up+f"{job_card.discount} : discount updated to :- {discount},"
+            job_card.discount=discount
+        # need to add total payment
+        paymentStatus=request.POST.get('paymentStatus')
+        if str(paymentStatus)!=str(job_card.paymentStatus):
+            up=up+f"{job_card.paymentStatus} : paymentStatus updated to :- {paymentStatus},"
+            job_card.paymentStatus=paymentStatus
+
+
+        ################################### Update customer info###########################################
+        customer=job_card.customer
         
-        # Update basic job card info
-        # job_card.status = request.POST.get('status', job_card.status)
-        # job_card.paymentStatus = request.POST.get('payment_status', job_card.paymentStatus)
-        # job_card.received_date = request.POST.get('received_date', job_card.received_date)
-        # job_card.delivery_date = request.POST.get('delivery_date', job_card.delivery_date)
-        # job_card.work_description = request.POST.get('work_description', job_card.work_description)
-        # job_card.labor_hours = float(request.POST.get('labor_hours', job_card.labor_hours))
-        # job_card.hourly_rate = float(request.POST.get('hourly_rate', job_card.hourly_rate))
-        # job_card.discount = float(request.POST.get('discount', job_card.discount))
+        phone=request.POST.get('customer_phone')
+        if str(phone)!=str(customer.phone):
+            up=up+f"{customer.phone} : customer_phone no updated to :- {phone},"
+            customer.phone=phone
+
+        email = request.POST.get('customer_email')
+        if str(email)!=str(customer.email):
+            up=up+f"{customer.email} : customer_email updated to :- {email},"
+            customer.email=email
+        address=request.POST.get('customer_address')
+        if str(address)!=str(customer.address):
+            up=up+f"{customer.address} : customer_address updated to :- {address},"
+            customer.address=address
         
-        # # Update customer info
-        # customer = job_card.customer
-        # customer.name = request.POST.get('customer_name', customer.name)
-        # customer.phone = request.POST.get('customer_phone', customer.phone)
-        # customer.email = request.POST.get('customer_email', customer.email)
-        # customer.address = request.POST.get('customer_address', customer.address)
-        # customer.customernotes = request.POST.get('customer_notes', customer.customernotes)
-        # customer.save()
+        customernotes=request.POST.get('customer_notes')
+        if str(customernotes)!=str(customer.customernotes):
+            up=up+f"{customer.customernotes} : customernotes updated to :- {customernotes},"
+            customer.customernotes=customernotes
+        customer.save()
+
+        #############################Update vehicle info#########################
+        vehicle = job_card.vehicle
+        registration_no=request.POST.get('registration_no')
+        if str(registration_no)!=str(vehicle.registration_no):
+            up=up+f"{vehicle.registration_no} : registration_no updated to :- {registration_no},"
+            vehicle.registration_no=registration_no
+        model=request.POST.get('vehicle_model')
+        if str(model)!=str(vehicle.model):
+            up=up+f"{vehicle.model} : vehicle_model updated to :- {model},"
+            vehicle.model=model
+        chassis_no=request.POST.get('chassis_no')
+        if str(chassis_no)!=str(vehicle.chassis_no):
+            up=up+f"{vehicle.chassis_no} : chassis_no updated to :- {chassis_no},"
+            vehicle.chassis_no=chassis_no
+        engine_no=request.POST.get('engine_no')
+        if str(engine_no)!=str(vehicle.engine_no):
+            up=up+f"{vehicle.engine_no} : engine_no updated to :- {engine_no},"
+            vehicle.engine_no=engine_no
+        petrol_level=request.POST.get('petrol_level')
+        if str(petrol_level)!=str(vehicle.petrol_level):
+            up=up+f"{vehicle.petrol_level} : petrol_level updated to :- {petrol_level},"
+            vehicle.petrol_level=petrol_level
+        notes=request.POST.get('vehicle_notes')
+        if str(notes)!=str(vehicle.notes):
+            up=up+f"{vehicle.notes} : notes updated to :- {notes},"
+            vehicle.notes=notes
+        vehicle.save()
+        ############################# Handle parts - first clear existing parts############################################
+        partslist=JobCardPartsDB.objects.filter(JobCart=job_card)
+        parts_data = json.loads(request.POST.get('parts', '[]'))
         
-        # # Update vehicle info
-        # vehicle = job_card.vehicle
-        # vehicle.registration_no = request.POST.get('registration_no', vehicle.registration_no)
-        # vehicle.model = request.POST.get('vehicle_model', vehicle.model)
-        # vehicle.chassis_no = request.POST.get('chassis_no', vehicle.chassis_no)
-        # vehicle.engine_no = request.POST.get('engine_no', vehicle.engine_no)
-        # vehicle.petrol_level = request.POST.get('petrol_level', vehicle.petrol_level)
-        # vehicle.notes = request.POST.get('vehicle_notes', vehicle.notes)
-        # vehicle.save()
+        jobcart_in_data=[]
+        newd=[]
+        print(parts_data)
+        for i in parts_data:
+            if i["is_existing"]==True:
+                jobcart_in_data.append(int(i["part_id"]))
+            else:
+                newd.append(i)
         
-        # Handle parts - first clear existing parts
-        # JobCardPart.objects.filter(job_card=job_card).delete()
+        for i in partslist:
+            if i.id not in jobcart_in_data:
+                StockDB.objects.filter(id=i.part_obj.id).update(Quantity=int(i.quantity)+int(i.part_obj.Quantity))
+                JobCardPartsDB.objects.filter(id=i.id).delete()
         
-        # # Add new parts from the form
-        # parts_data = json.loads(request.POST.get('parts', '[]'))
-        # for part_data in parts_data:
-        #     try:
-        #         part = Part.objects.get(id=part_data['part_id'])
-        #         JobCardPart.objects.create(
-        #             job_card=job_card,
-        #             part=part,
-        #             quantity=int(part_data['quantity']),
-        #             price=float(part_data['price'])
-        #         )
-        #     except Part.DoesNotExist:
-        #         continue  # Skip if part doesn't exist
-        
-        # # Recalculate total payment (adjust according to your logic)
-        # parts_total = sum(jp.price * jp.quantity for jp in job_card.jobcardpart_set.all())
-        # labor_cost = job_card.labor_hours * job_card.hourly_rate
-        # discount_amount = (parts_total + labor_cost) * (job_card.discount / 100)
-        # job_card.TotalPayent = (parts_total + labor_cost) - discount_amount
-        # job_card.save()
+        for i in newd:
+            part_obj=StockDB.objects.get(id=i["part_id"])
+            oldq=part_obj.Quantity
+            StockDB.objects.filter(id=i["part_id"]).update(Quantity=int(oldq)-int(i["quantity"]))
+            JobCardPartsDB.objects.create(JobCart=job_card,part_obj=part_obj,quantity=int(i["quantity"]))
+
+        job_card.save()
+
+
+        PartsTotal=0
+        partslist=JobCardPartsDB.objects.filter(JobCart=job_card)
+        for i in partslist:
+            PartsTotal+=i.quantity*i.part_obj.Price
+        labercost=float(labor_hours)*float(hourly_rate)
+        TotalPayment =(PartsTotal  + labercost) 
+
+        discountTotal=TotalPayment-((TotalPayment*float(discount))/100)
+        partslist=JobCardDB.objects.filter(id=job_card_id).update(TotalPayent=discountTotal)
+
+
         
         return JsonResponse({
             'success': True,
@@ -179,6 +265,7 @@ def update_job_card(request):
     # except JobCard.DoesNotExist:
     #     return JsonResponse({'success': False, 'message': 'Job card not found'}, status=404)
     except Exception as e:
+        print(e)
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
 def is_valid_email(email):
