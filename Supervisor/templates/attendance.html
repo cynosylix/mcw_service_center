@@ -1,0 +1,668 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Attendance Management | MCW CRM</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --dark-color: #5a5c69;
+            --sidebar-width: 250px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fc;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: linear-gradient(180deg, var(--primary-color) 0%, #224abe 100%);
+            color: white;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .sidebar-brand {
+            height: 4.375rem;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: 800;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            letter-spacing: 0.05rem;
+        }
+
+        .sidebar-divider {
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            margin: 0 1rem 1rem;
+        }
+
+        .sidebar-heading {
+            padding: 0 1rem;
+            font-weight: 800;
+            font-size: 0.65rem;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-link {
+            color: rgba(0, 0, 0, 0.8);
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+        }
+
+        .nav-link:hover {
+            color: rgb(204, 14, 14);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-link i {
+            margin-right: 0.5rem;
+        }
+
+        .nav-link.active {
+            color: rgb(0, 0, 0);
+            font-weight: 700;
+        }
+
+        /* Main Content */
+        #content {
+            width: calc(100% - var(--sidebar-width));
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            transition: all 0.3s;
+        }
+
+        .employee-card {
+            border: 1px solid #e3e6f0;
+            border-radius: 0.35rem;
+            margin-bottom: 1rem;
+            background-color: white;
+            padding: 1rem;
+        }
+
+        .status-badge {
+            padding: 0.35rem 0.65rem;
+            border-radius: 0.25rem;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+
+        .badge-present {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .badge-absent {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+
+        .badge-late {
+            background-color: #fff3cd;
+            color: #664d03;
+        }
+
+        .badge-halfday {
+            background-color: #cfe2ff;
+            color: #084298;
+        }
+
+        .badge-leave {
+            background-color: #e2e3e5;
+            color: #2b2f32;
+        }
+
+        .badge-overtime {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1050;
+        }
+
+        .overtime-section {
+            background-color: #f8f9fa;
+            border-radius: 0.25rem;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .time-input-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .time-input-group input {
+            flex: 1;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-left: -250px;
+            }
+
+            #content {
+                width: 100%;
+                margin-left: 0;
+            }
+
+            .sidebar.toggled {
+                margin-left: 0;
+            }
+
+            #content.toggled {
+                margin-left: 250px;
+            }
+        }
+    </style>
+</head>
+
+<body id="page-top">
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="#">
+            <img src="{% static 'img/logo.png' %}" alt="MCW" height="50" class="me-2">
+            <span>MCW CRM</span>
+        </a>
+
+        <hr class="sidebar-divider">
+
+        <div class="sidebar-heading">Core</div>
+
+        <li class="nav-item">
+            <a class="nav-link active" href="/Supervisor/Supervisor_home">
+                <i class="bi bi-speedometer2"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="/Supervisor/Supervisor_jobcard">
+                <i class="bi bi-briefcase"></i>
+                <span>Job Card</span>
+            </a>
+        </li>
+
+        <hr class="sidebar-divider">
+
+        <div class="sidebar-heading">Management</div>
+
+        <li class="nav-item">
+            <a class="nav-link" href="/Supervisor/supervisor_view_stock">
+                <i class="bi bi-box-seam"></i>
+                <span>Stock</span>
+            </a>
+        </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/Supervisor/supervisor_view_staff_attendance">
+                <i class="bi bi-box-seam"></i>
+                <span>Attendance</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="#">
+                <i class="bi bi-gear"></i>
+                <span>Settings</span>
+            </a>
+        </li>
+    </div>
+
+    <!-- Content Wrapper -->
+    <div id="content">
+        <!-- Topbar -->
+        <nav class="navbar navbar-expand navbar-light bg-white shadow mb-4">
+            <button class="btn btn-link d-md-none rounded-circle me-3" id="sidebarToggle">
+                <i class="bi bi-list"></i>
+            </button>
+
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                        data-bs-toggle="dropdown">
+                        <span class="me-2 d-none d-lg-inline text-gray-600 small" id="user_name"></span>
+                        <img class="img-profile rounded-circle" src="{% static 'img/logo.png' %}" height="40px">
+                    </a>
+                     <div class="dropdown-menu dropdown-menu-end shadow">
+                        <a class="dropdown-item" href="/Spare_Purchase/profile">
+                            <i class="bi bi-person-fill me-2"></i>
+                            Profile
+                        </a>
+                        <!-- <a class="dropdown-item" href="#">
+                            <i class="bi bi-gear-fill me-2"></i>
+                            Settings
+                        </a> -->
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                            <i class="bi bi-box-arrow-right me-2"></i>
+                            Logout
+                        </a>
+                    </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="container-fluid px-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="mb-0"><i class="bi bi-calendar-check me-2"></i>Attendance</h4>
+                <div class="bg-light p-2 rounded">
+                    <i class="bi bi-calendar me-2"></i>Today: <span id="currentDate"></span>
+                </div>
+            </div>
+
+            <!-- Attendance Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h6 class="m-0"><i class="bi bi-people-fill me-2"></i>Staff Attendance</h6>
+                    <button class="btn btn-sm btn-light" id="refreshAttendanceBtn">
+                        <i class="bi bi-arrow-repeat me-1"></i>Refresh
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="staffList">
+                        <div class="text-center py-5" id="loadingIndicator">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Loading staff data...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+            <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Ready to Leave?</h5>
+                    <button class="close" type="button" data-bs-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
+                    <a class="btn btn-primary" href="/Spare_Purchase/logout">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- Toast Container -->
+        <div class="toast-container"></div>
+    </div>
+
+    <!-- Bootstrap & jQuery -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        // Helper functions
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast show align-items-center text-white bg-${type === 'error' ? 'danger' : type} border-0`;
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">${message}</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+            document.querySelector('.toast-container').appendChild(toast);
+            setTimeout(() => toast.remove(), 5000);
+        }
+
+        function validateTimeInputs(card) {
+            // Validate morning times
+            const morningIn = card.querySelector('.morning-checkin-time').value;
+            const morningOut = card.querySelector('.morning-checkout-time').value;
+
+            if (morningIn && morningOut && morningIn > morningOut) {
+                showToast('Morning check-out time must be after check-in time', 'error');
+                card.querySelector('.morning-checkout-time').value = '';
+            }
+
+            // Validate afternoon times
+            const afternoonIn = card.querySelector('.afternoon-checkin-time').value;
+            const afternoonOut = card.querySelector('.afternoon-checkout-time').value;
+
+            if (afternoonIn && afternoonOut && afternoonIn > afternoonOut) {
+                showToast('Afternoon check-out time must be after check-in time', 'error');
+                card.querySelector('.afternoon-checkout-time').value = '';
+            }
+            
+            // Validate overtime times
+            const overtimeIn = card.querySelector('.overtime-checkin-time').value;
+            const overtimeOut = card.querySelector('.overtime-checkout-time').value;
+
+            if (overtimeIn && overtimeOut && overtimeIn > overtimeOut) {
+                showToast('Overtime check-out time must be after check-in time', 'error');
+                card.querySelector('.overtime-checkout-time').value = '';
+            }
+        }
+
+        function updateAttendanceCard(id, data) {
+            const card = document.querySelector(`[data-attendance-id="${id}"]`).closest('.employee-card');
+
+            // Update status badge
+            const statusClass = {
+                'present': 'badge-present',
+                'absent': 'badge-absent',
+                'half_day': 'badge-halfday',
+                'on_leave': 'badge-leave',
+                'overtime': 'badge-overtime'
+            }[data.day_status] || 'badge-secondary';
+
+            const statusBadge = card.querySelector('.status-badge');
+            statusBadge.className = `status-badge ${statusClass}`;
+            statusBadge.textContent = data.day_status;
+        }
+
+        // DOM Ready
+        document.addEventListener('DOMContentLoaded', function () {
+            // Set current date
+            document.getElementById('currentDate').textContent =
+                new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+            // Sidebar Toggle
+            document.getElementById('sidebarToggle').addEventListener('click', function () {
+                document.getElementById('sidebar').classList.toggle('toggled');
+                document.getElementById('content').classList.toggle('toggled');
+            });
+
+            // Add event listeners for time inputs
+            document.addEventListener('change', function (e) {
+                if (e.target.classList.contains('morning-checkin-time') ||
+                    e.target.classList.contains('morning-checkout-time') ||
+                    e.target.classList.contains('afternoon-checkin-time') ||
+                    e.target.classList.contains('afternoon-checkout-time') ||
+                    e.target.classList.contains('overtime-checkin-time') ||
+                    e.target.classList.contains('overtime-checkout-time')) {
+
+                    // Validate time inputs
+                    const card = e.target.closest('.employee-card');
+                    validateTimeInputs(card);
+                }
+            });
+
+            // Load initial data
+            loadStaff();
+        });
+
+        // Load staff data
+        function loadStaff() {
+            const staffList = document.getElementById('staffList');
+            staffList.innerHTML = `
+                <div class="text-center py-5" id="loadingIndicator">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading staff data...</p>
+                </div>
+            `;
+
+            // Replace with your actual API endpoint
+            fetch(`/Supervisor/attendance/api`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(renderStaffCards)
+                .catch(error => {
+                    console.error('Error:', error);
+                    staffList.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle me-2"></i>Error loading data: ${error.message}
+                        </div>
+                    `;
+                });
+        }
+
+        // Render staff cards
+        function renderStaffCards(staffData) {
+            const staffList = document.getElementById('staffList');
+            staffList.innerHTML = staffData.length ? '' : `
+                <div class="alert alert-info">No attendance records found for today</div>
+            `;
+
+            staffData.forEach(employee => {
+                const statusClass = {
+                    'present': 'badge-present',
+                    'absent': 'badge-absent',
+                    'late': 'badge-late',
+                    'half_day': 'badge-halfday',
+                    'on_leave': 'badge-leave',
+                    'overtime': 'badge-overtime'
+                }[employee.day_status] || 'badge-secondary';
+
+                const card = document.createElement('div');
+                card.className = 'employee-card mb-3';
+                card.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h6 class="mb-0">${employee.employee_name}</h6>
+                            <small class="text-muted">${employee.position}</small>
+                        </div>
+                        <span class="status-badge ${statusClass}">${employee.day_status}</span>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <h6 class="d-flex align-items-center">
+                                <i class="bi bi-sunrise me-2"></i>Morning
+                            </h6>
+                            <div class="time-input-group">
+                                <input type="time" class="form-control form-control-sm morning-checkin-time" 
+                                    value="${employee.morning_check_in || ''}">
+                                <input type="time" class="form-control form-control-sm morning-checkout-time" 
+                                    value="${employee.morning_check_out || ''}">
+                            </div>
+                            <select class="form-select form-select-sm mb-2 morning-status">
+                                <option value="present" ${employee.morning_status === 'present' ? 'selected' : ''}>Present</option>
+                                <option value="absent" ${employee.morning_status === 'absent' ? 'selected' : ''}>Absent</option>
+                            </select>
+                            <button class="btn btn-sm btn-primary w-100 morning-save">
+                                <i class="bi bi-save me-1"></i>Save Morning
+                            </button>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6 class="d-flex align-items-center">
+                                <i class="bi bi-sunset me-2"></i>Afternoon
+                            </h6>
+                            <div class="time-input-group">
+                                <input type="time" class="form-control form-control-sm afternoon-checkin-time" 
+                                    value="${employee.afternoon_check_in || ''}">
+                                <input type="time" class="form-control form-control-sm afternoon-checkout-time" 
+                                    value="${employee.afternoon_check_out || ''}">
+                            </div>
+                            <select class="form-select form-select-sm mb-2 afternoon-status">
+                                <option value="present" ${employee.afternoon_status === 'present' ? 'selected' : ''}>Present</option>
+                                <option value="absent" ${employee.afternoon_status === 'absent' ? 'selected' : ''}>Absent</option>
+                            </select>
+                            <button class="btn btn-sm btn-primary w-100 afternoon-save">
+                                <i class="bi bi-save me-1"></i>Save Afternoon
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Overtime Section -->
+                    <div class="overtime-section">
+                        <h6 class="d-flex align-items-center">
+                            <i class="bi bi-moon-stars me-2"></i>Overtime
+                        </h6>
+                        <div class="time-input-group">
+                            <input type="time" class="form-control form-control-sm overtime-checkin-time" 
+                                value="${employee.overtime_check_in || ''}" placeholder="Check-in">
+                            <input type="time" class="form-control form-control-sm overtime-checkout-time" 
+                                value="${employee.overtime_check_out || ''}" placeholder="Check-out">
+                        </div>
+                        <textarea class="form-control form-control-sm mb-2 overtime-remarks" 
+                            placeholder="Overtime remarks">${employee.overtime_remarks || ''}</textarea>
+                        <button class="btn btn-sm btn-warning w-100 overtime-save">
+                            <i class="bi bi-save me-1"></i>Save Overtime
+                        </button>
+                    </div>
+                `;
+
+                // Add data attributes for identification
+                const elements = card.querySelectorAll('[class*="time"], [class*="status"], [class*="save"], [class*="remarks"]');
+                elements.forEach(el => el.setAttribute('data-attendance-id', employee.id));
+
+                staffList.appendChild(card);
+            });
+
+            // Attach event listeners
+            document.getElementById('refreshAttendanceBtn').addEventListener('click', loadStaff);
+            document.querySelectorAll('.morning-save').forEach(btn => btn.addEventListener('click', saveMorning));
+            document.querySelectorAll('.afternoon-save').forEach(btn => btn.addEventListener('click', saveAfternoon));
+            document.querySelectorAll('.overtime-save').forEach(btn => btn.addEventListener('click', saveOvertime));
+        }
+
+        function saveMorning(e) {
+            const id = e.target.getAttribute('data-attendance-id');
+            const card = e.target.closest('.employee-card');
+            const data = {
+                morning_check_in: card.querySelector('.morning-checkin-time').value,
+                morning_check_out: card.querySelector('.morning-checkout-time').value,
+                morning_status: card.querySelector('.morning-status').value
+            };
+            
+            if (!data.morning_status) {
+                showToast('Please select morning status', 'error');
+                return;
+            }
+            
+            saveAttendance(id, data, 'Morning');
+        }
+
+        function saveAfternoon(e) {
+            const id = e.target.getAttribute('data-attendance-id');
+            const card = e.target.closest('.employee-card');
+            const data = {
+                afternoon_check_in: card.querySelector('.afternoon-checkin-time').value,
+                afternoon_check_out: card.querySelector('.afternoon-checkout-time').value,
+                afternoon_status: card.querySelector('.afternoon-status').value
+            };
+            
+            if (!data.afternoon_status) {
+                showToast('Please select afternoon status', 'error');
+                return;
+            }
+            
+            saveAttendance(id, data, 'Afternoon');
+        }
+
+        function saveOvertime(e) {
+            const id = e.target.getAttribute('data-attendance-id');
+            const card = e.target.closest('.employee-card');
+            const data = {
+                overtime_check_in: card.querySelector('.overtime-checkin-time').value,
+                overtime_check_out: card.querySelector('.overtime-checkout-time').value,
+                overtime_remarks: card.querySelector('.overtime-remarks').value
+            };
+            
+            if (data.overtime_check_in && !data.overtime_check_out) {
+                showToast('Please enter overtime check-out time', 'error');
+                return;
+            }
+            
+            if (data.overtime_check_out && !data.overtime_check_in) {
+                showToast('Please enter overtime check-in time', 'error');
+                return;
+            }
+            
+            saveAttendance(id, data, 'Overtime');
+        }
+
+        function saveAttendance(id, data, section) {
+            const saveBtn = document.querySelector(`[data-attendance-id="${id}"].${section.toLowerCase().replace(' ', '-')}-save`);
+            const originalHtml = saveBtn.innerHTML;
+
+            // Show loading state
+            saveBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-1" role="status"></span>Saving...`;
+            saveBtn.disabled = true;
+
+            // Format time strings if needed
+            const formatTime = (time) => time && !time.includes(':') ? 
+                `${time.substring(0, 2)}:${time.substring(2, 4)}` : time;
+
+            if (data.morning_check_in) data.morning_check_in = formatTime(data.morning_check_in);
+            if (data.morning_check_out) data.morning_check_out = formatTime(data.morning_check_out);
+            if (data.afternoon_check_in) data.afternoon_check_in = formatTime(data.afternoon_check_in);
+            if (data.afternoon_check_out) data.afternoon_check_out = formatTime(data.afternoon_check_out);
+            if (data.overtime_check_in) data.overtime_check_in = formatTime(data.overtime_check_in);
+            if (data.overtime_check_out) data.overtime_check_out = formatTime(data.overtime_check_out);
+
+            fetch(`/Supervisor/attendance/api/${id}/`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'include',
+                body: JSON.stringify(data)
+            })
+                .then(async response => {
+                    const responseData = await response.json();
+                    if (!response.ok) {
+                        throw new Error(responseData.error || `Server responded with ${response.status}`);
+                    }
+                    return responseData;
+                })
+                .then(updatedData => {
+                    showToast(`${section} saved successfully!`, 'success');
+                    updateAttendanceCard(id, updatedData);
+                })
+                .catch(error => {
+                    console.error('Save error:', error);
+                    showToast(`Failed to save ${section}: ${error.message}`, 'error');
+                })
+                .finally(() => {
+                    saveBtn.innerHTML = originalHtml;
+                    saveBtn.disabled = false;
+                });
+        }
+    </script>
+</body>
+</html>

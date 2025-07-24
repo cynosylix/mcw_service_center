@@ -125,10 +125,10 @@
 
 <body id="page-top">
     <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
+     <div class="sidebar" id="sidebar">
         <a class="sidebar-brand d-flex align-items-center justify-content-center" href="#">
-            <img src="static/img/logo.png" alt="MCW" height="50" class="me-2">
-            <span style="color: #f8f9fc;">MCW </span>
+            <img src="{% static 'img/logo.png' %}" alt="MCW" height="50" class="me-2">
+            <span>MCW CRM</span>
         </a>
 
         <hr class="sidebar-divider">
@@ -136,21 +136,21 @@
         <div class="sidebar-heading">Core</div>
 
         <li class="nav-item">
-            <a class="nav-link active" href="/OwnerHome">
+             <a class="nav-link active"  href="/Supervisor/Supervisor_home">
                 <i class="bi bi-speedometer2"></i>
                 <span>Dashboard</span>
             </a>
         </li>
-
-        <!-- <li class="nav-item">
-            <a class="nav-link" href="/OwnerCustomerPg">
+        <!-- 
+        <li class="nav-item">
+            <a class="nav-link" href="#">
                 <i class="bi bi-people"></i>
                 <span>Customers</span>
             </a>
         </li> -->
 
         <li class="nav-item">
-            <a class="nav-link" href="/JobCardpg">
+            <a class="nav-link" href="/Supervisor/Supervisor_jobcard">
                 <i class="bi bi-briefcase"></i>
                 <span>Job Card</span>
             </a>
@@ -160,16 +160,23 @@
 
         <div class="sidebar-heading">Management</div>
 
-        <li class="nav-item">
-            <a class="nav-link" href="/ViewStaffPg">
+        <!-- <li class="nav-item">
+            <a class="nav-link" href="#">
                 <i class="bi bi-file-earmark-text"></i>
                 <span>Staff</span>
             </a>
-        </li>
+        </li> -->
+
         <li class="nav-item">
-            <a class="nav-link" href="/StockPg">
-                <i class="bi bi-box-seam"></i> <!-- Changed to a stock/box icon -->
-                <span>Stock</span> <!-- Changed text to Stock -->
+            <a class="nav-link" href="/Supervisor/supervisor_view_stock">
+                <i class="bi bi-box-seam"></i>
+                <span>Stock</span>
+            </a>
+        </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/Supervisor/supervisor_view_staff_attendance">
+                <i class="bi bi-box-seam"></i>
+                <span>Attendance</span>
             </a>
         </li>
 
@@ -180,6 +187,7 @@
             </a>
         </li>
     </div>
+
 
     <!-- Content Wrapper -->
     <div id="content">
@@ -277,14 +285,14 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-xl-3 col-md-6 mb-4">
+                <!-- <div class="col-xl-3 col-md-6 mb-4">
                     <div class="card stock-card bg-success text-white shadow h-100">
                         <div class="card-body">
                             <div class="row no-gutters align-items-center">
                                 <div class="col mr-2">
                                     <div class="text-xs font-weight-bold text-uppercase mb-1">
                                         Total Stock Value</div>
-                                    <div class="h5 mb-0 font-weight-bold" id="TotalstokValue"></div>
+                                    <div class="h5 mb-0 font-weight-bold">$24,568</div>
                                 </div>
                                 <div class="col-auto">
                                     <i class="bi bi-currency-dollar" style="font-size: 2rem;"></i>
@@ -292,7 +300,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
                 <div class="col-xl-3 col-md-6 mb-4" onclick="LowStockClick()">
                     <div class="card stock-card bg-warning text-white shadow h-100">
                         <div class="card-body">
@@ -445,87 +453,52 @@
         <!-- End of Page Content -->
         <!-- End of Page Content -->
 
-        <div class="modal fade" id="viewUpdate" tabindex="-1" role="dialog" aria-labelledby="addStaffModalLabel"
+        <!-- Add Staff Modal -->
+        <div class="modal fade" id="addStaffModal" tabindex="-1" role="dialog" aria-labelledby="addStaffModalLabel"
             aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header bg-primary text-white">
-                        <h5 class="modal-title" id="addStaffModalLabel">Prodect Updates</h5>
+                        <h5 class="modal-title" id="addStaffModalLabel">Add Stock</h5>
                         <button class="close" type="button" data-bs-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">×</span>
                         </button>
                     </div>
-                     <div class="modal-body">
-                    <form>
-                        {% csrf_token %}
-                        <div class="row">
-                            
-                            <p>
-                                <strong>date</strong>Update
-                            </p>
-                            <p>
-                                <strong>date</strong> update
-                            </p>
-                          
-                        </div>
+                    <div class="modal-body">
+                        <form>
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="stockid" class="form-label">Stock Id</label>
+                                        <div class="input-group"> <!-- Bootstrap input-group wrapper -->
+                                            <input type="text" class="form-control" id="stockid" required>
+                                            <button class="btn btn-outline-secondary" type="button"
+                                                id="generateStockId">
+                                                <i class="fas fa-sync-alt"></i> Generate <!-- Optional icon -->
+                                            </button>
+                                            <button class="btn btn-outline-secondary" type="button" id="checkStockId">
+                                                <i class="fas fa-sync-alt"></i> check <!-- Optional icon -->
+                                            </button>
+                                        </div>
 
-                        
-
-                        
-                    </form>
-                </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Add Staff Modal -->
-    <div class="modal fade" id="addStaffModal" tabindex="-1" role="dialog" aria-labelledby="addStaffModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="addStaffModalLabel">Add Stock</h5>
-                    <button class="close" type="button" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        {% csrf_token %}
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="stockid" class="form-label">Stock Id</label>
-                                    <div class="input-group"> <!-- Bootstrap input-group wrapper -->
-                                        <input type="text" class="form-control" id="stockid" required>
-                                        <button class="btn btn-outline-secondary" type="button" id="generateStockId">
-                                            <i class="fas fa-sync-alt"></i> Generate <!-- Optional icon -->
-                                        </button>
-                                        <button class="btn btn-outline-secondary" type="button" id="checkStockId">
-                                            <i class="fas fa-sync-alt"></i> check <!-- Optional icon -->
-                                        </button>
                                     </div>
-
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="staffName" class="form-label">Name</label>
-                                    <input type="text" class="form-control" id="name" required>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="staffName" class="form-label">Name</label>
+                                        <input type="text" class="form-control" id="name" required>
+                                    </div>
                                 </div>
-                            </div>
-                            <p>
-                                <strong>Generate Stock ID:</strong> Click "Generate" to auto-create a unique
-                                Stock ID.
-                            </p>
-                            <p>
-                                <strong>Add Manually:</strong> If entering a Stock ID manually, click "Check
-                                Availability" to verify if it's already in use.
-                            </p>
-                            <!-- <div class="col-md-6">
+                                <p>
+                                    <strong>Generate Stock ID:</strong> Click "Generate" to auto-create a unique
+                                    Stock ID.
+                                </p>
+                                <p>
+                                    <strong>Add Manually:</strong> If entering a Stock ID manually, click "Check
+                                    Availability" to verify if it's already in use.
+                                </p>
+                                <!-- <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="staffPosition" class="form-label">Position</label>
                                         <select class="form-select" id="staffPosition" required>
@@ -539,37 +512,37 @@
                                         </select>
                                     </div>
                                 </div> -->
-                        </div>
+                            </div>
 
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="staffPhone" class="form-label">Category</label>
-                                    <input type="tel" class="form-control" id="Category" required>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="staffPhone" class="form-label">Category</label>
+                                        <input type="tel" class="form-control" id="Category" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="staffEmail" class="form-label">Supplier</label>
+                                        <input type="email" class="form-control" id="Supplier">
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="staffEmail" class="form-label">Supplier</label>
-                                    <input type="email" class="form-control" id="Supplier">
-                                </div>
-                            </div>
-                        </div>
 
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="staffJoinDate" class="form-label">Quantity</label>
-                                    <input type="number" class="form-control" id="Quantity" required>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="staffJoinDate" class="form-label">Quantity</label>
+                                        <input type="number" class="form-control" id="Quantity" required>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="staffJoinDate" class="form-label">Unit</label>
-                                    <input type="text" class="form-control" id="Unit" required>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="staffJoinDate" class="form-label">Unit</label>
+                                        <input type="text" class="form-control" id="Unit" required>
+                                    </div>
                                 </div>
-                            </div>
-                            <!-- <div class="col-md-6">
+                                <!-- <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="staffStatus" class="form-label">Status</label>
                                         <select class="form-select" id="staffStatus" required>
@@ -579,45 +552,45 @@
                                         </select>
                                     </div>
                                 </div> -->
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="staffSalary" class="form-label">Price</label>
-                                    <input type="number" class="form-control" id="Price" required>
-                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="staffPhoto" class="form-label">Photo</label>
-                                    <input class="form-control" type="file" id="Photo">
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="staffSalary" class="form-label">Price</label>
+                                        <input type="number" class="form-control" id="Price" required>
+                                    </div>
                                 </div>
-                                <!-- <div class="mb-3">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="staffPhoto" class="form-label">Photo</label>
+                                        <input class="form-control" type="file" id="Photo">
+                                    </div>
+                                    <!-- <div class="mb-3">
                                         <label for="staffBank" class="form-label">Bank Account</label>
                                         <input type="text" class="form-control" id="staffBank">
                                     </div> -->
+                                </div>
                             </div>
-                        </div>
 
-                        <!-- <div class="mb-3">
+                            <!-- <div class="mb-3">
                                 <label for="staffAddress" class="form-label">Address</label>
                                 <textarea class="form-control" id="staffAddress" rows="2"></textarea>
                             </div> -->
 
-                        <!-- <div class="mb-3">
+                            <!-- <div class="mb-3">
                                 <label for="staffPhoto" class="form-label">Staff Photo</label>
                                 <input class="form-control" type="file" id="staffPhoto">
                             </div> -->
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
-                    <button class="btn btn-primary" type="button" onclick="addStock()">Add Stock</button>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
+                        <button class="btn btn-primary" type="button" onclick="addStock()">Add Stock</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     </div>
     <!-- End of Content Wrapper -->
 
@@ -671,8 +644,6 @@
         const userNameElement = document.getElementById('user_name');
         userNameElement.textContent = appData.user;
 
-        const TotalstokValue = document.getElementById('TotalstokValue');
-        TotalstokValue.textContent = appData.TotalstokValue;
         const TotalItemsElement = document.getElementById('TotalItemsCounter');
         TotalItemsElement.textContent = appData.TotalItems;
         const counterElement = document.getElementById('lowStockCounter');
@@ -772,22 +743,11 @@
                     <td>${item.Unit}</td>
                     <td> ₹ ${item.Price}</td>
                     <td> ₹ ${item.Value}</td>
-                    <td class="text-center"><span class="${badgeClass}">${item.Status}</span></td>
-                   <td class="text-center">  <!-- Added text-center class -->
+                    <td><span class="${badgeClass}">${item.Status}</span></td>
+                    <td>
                         <div class="btn-group" role="group">
-                            <!-- Update Button (now with eye icon) -->
                             <button class="btn btn-sm btn-warning"
-                                    onclick="updateSingleAction('${item.ItemCode}')" 
-                                    data-bs-target="#addStaffModal"  
-                                    data-bs-toggle="modal">
-                                <i class="bi bi-pencil-square"></i> 
-                            </button>
-                            
-                            <button class="btn btn-sm btn-info ms-1" 
-                                    data-bs-target="#viewUpdate"  
-                                    data-bs-toggle="modal">
-                                <i class="bi bi-eye"></i>  <!-- Eye icon -->
-                            </button>
+                            onclick="updateSingleAction('${item.ItemCode}')" data-bs-target="#addStaffModal"  data-bs-toggle="modal"><i class="bi bi-box-arrow-up"></i></button>
                         </div>
                     </td>
                 `;
@@ -1012,7 +972,6 @@
                                 <button class="btn btn-sm btn-warning"
                                 onclick="updateSingleAction('${item.ItemCode}')" data-bs-target="#addStaffModal"  data-bs-toggle="modal"><i class="bi bi-box-arrow-up"></i></button>
                             </div>
-                            
                         </td>
                     `;
 

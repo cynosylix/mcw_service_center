@@ -5,17 +5,12 @@ from Owner.models import UsesDB
 from Spare_Purchase.models import StockDB
 from django.db.models import Q
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 import re
-from Supervisor.models import CustomerDB, JobCardDB, JobCardPartsDB, VehicleDB
+from Supervisor.models import CustomerDB, JobCardDB, JobCardPartsDB, VehicleDB, Attendance
+from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
-from django.views.decorators.http import require_POST
-from django.template.loader import get_template
-from xhtml2pdf import pisa
-import os
-from django.conf import settings
-from datetime import datetime
-from datetime import datetime
+from django.shortcuts import render, redirect
+import json
 
 def Supervisor_home(request):
     return render(request,"SupervisorHome.html")
@@ -33,8 +28,28 @@ def Supervisor_jobcard(request):
 
     else:return redirect("login")
 
+# def attendance_page(request):
+#     user_id=request.session['user_id'] 
+#     user_name=request.session['user_name'] 
+#     position=request.session['user_position'] 
+#     if position == "Supervisor":
+#         return render(request, "attendance.html", {"user_name": user_name})
+#     else:
+#         return redirect("login")
+
+def api_employees(request):
+    if request.method == "GET":
+        employees = UsesDB.objects.filter(position__in=["Mechanic", "Senior Mechanic", "Helper", "Other"])  # Adjust positions as needed
+        employee_list = [{"id": emp.id, "name": emp.name} for emp in employees]
+        return JsonResponse(employee_list, safe=False)
+    else:
+        return JsonResponse({"error": "Method not allowed"}, status=405)
 
 
+
+
+
+    
 def Supervisor_jobcard_create_pg(request):
     user_id=request.session['user_id'] 
     user_name=request.session['user_name'] 
@@ -314,276 +329,227 @@ def create_job_card(request):
 
 
 
-
-
-@csrf_exempt
-def record_payment(request):
+def supervisor_view_stock(request):
     user_id=request.session['user_id'] 
     user_name=request.session['user_name'] 
     position=request.session['user_position'] 
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            job_card = JobCardDB.objects.get(id=data['job_card_id'])
-            notes=job_card.PaymentNotes
-            paidaomut=job_card.paydPayent
-            totalamount=job_card.TotalPayent
-            Paymentdonebynote=job_card.Paymentdonebynote
-            newPaymentdonebynote=""
-            # Convert amount to float
-            print(data)
-            payment_amount = float(data['amount'])
-
-           
-            newpaidaomut=float(paidaomut)+float(payment_amount)
-            
-            newtotalamount=float(totalamount)-float(newpaidaomut)
-            
-            if notes==None:
-                newnote=data['notes'] + "$$$"
-            else:
-                if data['notes']!="":
-                    newnote=notes+data['notes'] + ", $$$ ,"
-
-            if Paymentdonebynote==None:
-                newPaymentdonebynote=f"{Paymentdonebynote} user_id :- {user_id} , user_name :- {user_name}({position}, paid amount :- {payment_amount} , Payment Method :- {data['method']})  $$$"
-            else:newPaymentdonebynote=f"{Paymentdonebynote} user_id :- {user_id} , user_name :- {user_name}({position}, paid amount :- {payment_amount} , Payment Method :- {data['method']})  $$$"
-            
-
-            job_card.PaymentNotes=newnote
-            # job_card.TotalPayent=newtotalamount
-            job_card.paydPayent=newpaidaomut
-            job_card.PaymentMethod=data['method']
-            job_card.Paymentdonebynote=newPaymentdonebynote
-
-
-            paidaomut=float(format(job_card.paydPayent, '.2f'))
-            totalamount=float(format(job_card.TotalPayent, '.2f'))
-            print(f"{paidaomut} {totalamount}")
-            if paidaomut==totalamount:
-                job_card.paymentStatus="Completed"
-
-
-            job_card.save()
+    if position=="Supervisor":
         
+        usertable=UsesDB.objects.filter(id=user_id)
+        stockdata=StockDB.objects.all()
+        stok=[]
+        TotalstokValue=0
+        for i in stockdata:
+            stok.append({"ItemCode":i.ItemCode,"ItemName":i.ItemName,"Category":i.Category,
+                         "Supplier":i.Supplier,"Quantity":i.Quantity,"Unit":i.Unit,"Price":i.Price,
+                         "Value":i.Value,"Status":i.Status})
+            TotalstokValue+=int(i.Value)
+        TotalItems=len(stockdata)
+        LowStock=len(StockDB.objects.filter(shop=usertable[0].shop.id,Status="Low Stock"))
+        OutofStock=len(StockDB.objects.filter(shop=usertable[0].shop.id,Status="Out of Stock"))
+
+        data={"user":user_name,"TotalItems":TotalItems,"LowStock":LowStock,"OutofStock":OutofStock,"stockdata":stok,"TotalstokValue":TotalstokValue}
+        # return render(request,"Stock.html",{'data': json.dumps(data)})
+    return render(request, "Supervisor_view_stock.html",{'data': json.dumps(data)})
+
+
+
+from django.views.decorators.http import require_http_methods
+from datetime import date, datetime
+
+
+
+
+def attendance_page(request):
+    user_id = request.session.get('user_id')
+    user_name = request.session.get('user_name')
+    position = request.session.get('user_position')
+    if position == "Supervisor":
+        return render(request, "attendance.html", {"user_name": user_name})
+    return redirect("login")
+
+
+@require_http_methods(["GET"])
+def attendance_list(request):
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+   
+    try:
+        attendance_data = []
+        employees = UsesDB.objects.exclude(position='Owner').exclude(position='Supervisor')
+        
+        for employee in employees:
+            # Get or create attendance record
+            attendance, created = Attendance.objects.get_or_create(
+                employee=employee,
+                defaults={
+                    'morning_status': 'absent',
+                    'afternoon_status': 'absent',
+                    'day_status': 'absent'
+                }
+            )
             
-            
-            
-            return JsonResponse({
-                'success': True,
-                'message': 'Payment recorded successfully',
-                'new_balance': float(3402) - float(30)
+            attendance_data.append({
+                'id': attendance.id,
+                'employee_id': employee.id,
+                'employee_name': employee.name,
+                'position': employee.position,
+                'date': attendance.date,
+                
+                # Morning data
+                'morning_check_in': attendance.morning_check_in.isoformat()[:5] if attendance.morning_check_in else None,
+                'morning_check_out': attendance.morning_check_out.isoformat()[:5] if attendance.morning_check_out else None,
+                'morning_status': attendance.morning_status,
+                'morning_remarks': attendance.morning_remarks,
+                
+                # Afternoon data
+                'afternoon_check_in': attendance.afternoon_check_in.isoformat()[:5] if attendance.afternoon_check_in else None,
+                'afternoon_check_out': attendance.afternoon_check_out.isoformat()[:5] if attendance.afternoon_check_out else None,
+                'afternoon_status': attendance.afternoon_status,
+                'afternoon_remarks': attendance.afternoon_remarks,
+                
+                # Overtime data
+                'overtime_check_in': attendance.overtime_check_in.isoformat()[:5] if attendance.overtime_check_in else None,
+                'overtime_check_out': attendance.overtime_check_out.isoformat()[:5] if attendance.overtime_check_out else None,
+                'overtime_hours': float(attendance.overtime_hours),
+                'overtime_approved': attendance.overtime_approved,
+                'overtime_remarks': attendance.overtime_remarks,
+                
+                # Summary data
+                'total_working_hours': float(attendance.total_working_hours),
+                'late_hours': float(attendance.late_hours),
+                'day_status': attendance.day_status,
+                'daily_remarks': attendance.daily_remarks,
             })
             
-        except JobCardDB.DoesNotExist:
-            return JsonResponse({'success': False, 'message': 'Job card not found'}, status=404)
-        except ValueError:
-            return JsonResponse({'success': False, 'message': 'Invalid payment amount'}, status=400)
+        return JsonResponse(attendance_data, safe=False)
+    
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+    
+
+from datetime import datetime
+from calendar import monthrange
+@csrf_exempt
+def update_attendance(request, attendance_id):
+    """Update attendance record"""
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+    if request.method == "PATCH":
+        try:
+            attendance = Attendance.objects.get(pk=attendance_id)
+            data = json.loads(request.body)
+
+            def parse_time(time_str):
+                if time_str:
+                    return datetime.strptime(time_str, '%H:%M').time()
+                return None
+            
+            # Update morning session
+            if 'morning_check_in' in data:
+                attendance.morning_check_in = parse_time(data['morning_check_in'])
+            if 'morning_check_out' in data:
+                attendance.morning_check_out = parse_time(data['morning_check_out'])
+            if 'morning_status' in data:
+                attendance.morning_status = data['morning_status']
+                
+            # Update afternoon session
+            if 'afternoon_check_in' in data:
+                attendance.afternoon_check_in = parse_time(data['afternoon_check_in'])
+            if 'afternoon_check_out' in data:
+                attendance.afternoon_check_out = parse_time(data['afternoon_check_out'])
+            if 'afternoon_status' in data:
+                attendance.afternoon_status = data['afternoon_status']
+                
+            # Update overtime session
+            if 'overtime_check_in' in data:
+                attendance.overtime_check_in = parse_time(data['overtime_check_in'])
+            if 'overtime_check_out' in data:
+                attendance.overtime_check_out = parse_time(data['overtime_check_out'])
+            if 'overtime_approved' in data:
+                attendance.overtime_approved = data['overtime_approved']
+            if 'overtime_remarks' in data:
+                attendance.overtime_remarks = data['overtime_remarks']
+            
+            # Recalculate totals and save
+            attendance.calculate_working_hours()
+            attendance.save()
+            
+            # Return updated data
+            return JsonResponse({
+                'id': attendance.id,
+                'total_working_hours': float(attendance.total_working_hours),
+                'late_hours': float(attendance.late_hours),
+                'overtime_hours': float(attendance.overtime_hours),
+                'day_status': attendance.day_status,
+                'message': 'Attendance updated successfully'
+            })
+            
+        except Attendance.DoesNotExist:
+            return JsonResponse({'error': 'Attendance record not found'}, status=404)
         except Exception as e:
-            return JsonResponse({'success': False, 'message': str(e)}, status=500)
-    
-    return JsonResponse({'success': False, 'message': 'Invalid request method'}, status=405)
+            return JsonResponse({'error': str(e)}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
 
-from reportlab.lib.pagesizes import letter
-from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.lib.units import inch
-from datetime import datetime, timedelta
 
-def generate_invoice(request):
-    output_filename="invoice.pdf"
-    
-    data = json.loads(request.body)
-    jobObj=JobCardDB.objects.get(id=int(data["job_card_id"]))
-    address=jobObj.customer.address
-    filename = f"Invoice_{'invoice_number'}.pdf"
-    filepath = os.path.join(settings.MEDIA_ROOT, 'invoices', filename)
-    
-    doc = SimpleDocTemplate(filepath, pagesize=letter,
-                           rightMargin=36, leftMargin=36,
-                           topMargin=36, bottomMargin=36)
-    
-    # Content container
-    elements = []
-    
-    # Styles
-    styles = getSampleStyleSheet()
-    
-    # Custom styles
-    styles.add(ParagraphStyle(name='InvoiceTitle', 
-                             fontSize=24, 
-                             leading=28,
-                             alignment=1,  # center aligned
-                             textColor=colors.HexColor("#2c3e50"),
-                             spaceAfter=24,
-                             fontName="Helvetica-Bold"))
-    
-    styles.add(ParagraphStyle(name='Header', 
-                             fontSize=10, 
-                             leading=12,
-                             textColor=colors.HexColor("#34495e")))
-    
-    styles.add(ParagraphStyle(name='Footer', 
-                             fontSize=8, 
-                             leading=10,
-                             textColor=colors.HexColor("#7f8c8d"),
-                             alignment=1))
-    
-    # Add logo (replace with your actual logo path)
-    # logo_path = "logo.png"  # Replace with your logo file or remove this section
-    # if os.path.exists(logo_path):
-    #     logo = Image(logo_path, width=2*inch, height=0.5*inch)
-    #     elements.append(logo)
-    #     elements.append(Spacer(1, 0.25*inch))
-    
-    # Invoice title with accent color
-    elements.append(Paragraph(f"{data['invoiceNam']}", styles['InvoiceTitle']))
-    
-    # Decorative line
-    elements.append(Spacer(1, 0.1*inch))
-    elements.append(Table([[""]], colWidths=[7*inch], style=[
-        ('LINEABOVE', (0,0), (0,0), 1, colors.HexColor("#3498db"))
-    ]))
-    elements.append(Spacer(1, 0.25*inch))
-    
-    # Company and client information with improved layout
-    company_info = [
-        [Paragraph("<b>From.</b>", styles['Header']), 
-         Paragraph("<b>BILL TO</b>", styles['Header'])],
-       
-    ]
-    lines1 = ["Piller no:113, Metro station, near Companypady,",
-             "Thaikkattukara, Aluva, Kerala 683106"]
-    lines=[]
-    current_line = ""
-    for part in address:
-        # If adding this part would exceed 45 chars, start a new line
-        if current_line and len(current_line) + len(part) + 2 > 48:  # +2 for comma and space
-            lines.append(current_line)
-            current_line = part
-        else:
-            if current_line:
-                current_line +=   part
-            else:
-                current_line = part
 
-    if current_line:
-        lines.append(current_line)
-    result = [[x or "", y] for x, y in zip_longest(lines1, lines, fillvalue="")]
+
+def supervisor_view_staff_attendance(request):
+    user_id = request.session.get('user_id')
+    user_name = request.session.get('user_name')
+    position = request.session.get('user_position')
     
-    print(result)
-    for i in result:
-        company_info.append(i)
-    company_info.append(["Email:- ", "Email:- "+str(jobObj.customer.email)])
-    company_info.append(["Phone:- +91 96562 56743", f"Phone:- {jobObj.customer.phone}"])
-    
-    
-    company_table = Table(company_info, colWidths=[doc.width/2]*2)
-    company_table.setStyle(TableStyle([
-        ('TEXTCOLOR', (0, 0), (-1, -1), colors.HexColor("#2c3e50")),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),  # More space after headers
-        ('BOTTOMPADDING', (0, 1), (-1, -1), 4),
-        ('LEFTPADDING', (0, 0), (-1, -1), 0),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 0),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-    ]))
-    elements.append(company_table)
-    elements.append(Spacer(1, 0.4*inch))
-    print(data)
-    # Invoice details with better visual hierarchy
-    invoice_details = [
-        [Paragraph("<font color='#3498db'><b>INVOICE #</b></font>", styles['Header']), 
-         Paragraph(f"{data['invoice_number']}", styles['Header'])],
-        [Paragraph("<font color='#3498db'><b>DATE</b></font>", styles['Header']), 
-         datetime.now().strftime("%B %d, %Y")],
-        # [Paragraph("<font color='#3498db'><b>DUE DATE</b></font>", styles['Header']), 
-        #  (datetime.now() + timedelta(days=30)).strftime("%B %d, %Y")],
-        # [Paragraph("<font color='#3498db'><b>PAYMENT TERMS</b></font>", styles['Header']), 
-        #  "Net 30"],
-        [Paragraph("<font color='#3498db'><b>PAYMENT METHOD</b></font>", styles['Header']), 
-         f"{jobObj.PaymentMethod}"]
-    ]
-    
-    invoice_table = Table(invoice_details, colWidths=[1.5*inch, 3*inch])
-    invoice_table.setStyle(TableStyle([
-        ('TEXTCOLOR', (0, 0), (-1, -1), colors.HexColor("#2c3e50")),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('ALIGN', (0, 0), (0, 0), 'LEFT'),
-        ('VALIGN', (0, 0), (0, 0), 'TOP'),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
-        ('LEFTPADDING', (0, 0), (-1, -1), 0),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 0),
-        ('BACKGROUND', (0, 0), (0, -1), colors.HexColor("#f8f9fa")),
-    ]))
-    elements.append(invoice_table)
-    elements.append(Spacer(1, 0.4*inch))
-    
-    # Items table with premium styling
-    bold_style = ParagraphStyle('Bold', parent=styles['Normal'], 
-                               fontName='Helvetica-Bold',
-                               textColor=colors.HexColor("#2c3e50"))
-    
-    items = [
-        [
-            Paragraph("<font color='#3498db'>ITEM</font>", bold_style),
-            Paragraph("<font color='#3498db'>DESCRIPTION</font>", bold_style),
-            Paragraph("<font color='#3498db'>QTY</font>", bold_style),
-            Paragraph("<font color='#3498db'>UNIT PRICE</font>", bold_style),
-            Paragraph("<font color='#3498db'>AMOUNT</font>", bold_style)
-        ],
+    if position == "Supervisor":
+        user_data = UsesDB.objects.exclude(position='Owner').exclude(position='Supervisor')
         
-    ]
-    part=JobCardPartsDB.objects.filter(JobCart=jobObj)
-    de={}
-    n1=1
-    for i in part:
-        if i.part_obj.id in de.keys():
-            de[i.part_obj.id][2]=int(de[i.part_obj.id][2])+int(i.quantity)
-        else:
-            de[i.part_obj.id]=[str(n1),str(i.part_obj.ItemName),str(i.quantity),"$"+str(i.part_obj.Price),"$"+str(i.quantity*i.part_obj.Price)]
-            n1
-    for i in de.values():
-        items.append(i)
-    lbcharge=jobObj.labor_hours*jobObj.hourly_rate
-    items.append([f"{n1}", "Labor Charges", "", "", f"${lbcharge}"])
-    items.append(["", "", "", Paragraph("<b>Subtotal:</b>", bold_style), f"${jobObj.TotalPayent}"],)
-    items.append(["", "", "", Paragraph("<font color='#3498db'><b>TOTAL DUE:</b></font>", bold_style), 
-         Paragraph(f"<font color='#3498db'><b>${jobObj.TotalPayent}</b></font>", bold_style)])
- 
-        # # ["", "", "", Paragraph("<b>Tax (10%):</b>", bold_style), "$640.00"],
-
-    items_table = Table(items, colWidths=[1.2*inch, 2.5*inch, 0.6*inch, 1.2*inch, 1.2*inch])
-    items_table.setStyle(TableStyle([
-        ('TEXTCOLOR', (0, 0), (-1, -1), colors.HexColor("#2c3e50")),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('ALIGN', (2, 0), (-1, -1), 'RIGHT'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-        ('LEFTPADDING', (0, 0), (-1, -1), 4),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 4),
-        ('LINEBELOW', (0, 0), (-1, 0), 1, colors.HexColor("#3498db")),
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#f8f9fa")),
-        ('LINEABOVE', (0, -3), (-1, -3), 1, colors.HexColor("#bdc3c7")),
-        ('LINEABOVE', (0, -1), (-1, -1), 1, colors.HexColor("#3498db")),
-        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#f8f9fa")]),
-    ]))
-    elements.append(items_table)
-    elements.append(Spacer(1, 0.5*inch))
-    
-    
-    
-   
-   
-    
-    # Build the document
-    doc.build(elements)
-    print(f"Premium invoice generated: {filepath}")
-    
-    return JsonResponse({
-        'success': True,
-        'invoice_url': os.path.join(settings.MEDIA_URL, 'invoices', filename)
-    })
+        # Get selected month and year (default to current)
+        now = datetime.now()
+        month = int(request.GET.get('month', now.month))
+        year = int(request.GET.get('year', now.year))
+        
+        # Get number of days in selected month
+        _, num_days = monthrange(year, month)
+        
+        # Get attendance data
+        attendance_data = Attendance.objects.filter(
+            employee__in=user_data,
+            date__year=year,
+            date__month=month
+        ).select_related('employee')
+        
+        # Create a better data structure for the template
+        staff_attendance = []
+        for staff in user_data:
+            # Initialize with empty data for each day
+            days = {day: '' for day in range(1, num_days+1)}
+            
+            # Fill in actual attendance data
+            for att in attendance_data.filter(employee=staff):
+                print(att.day_status)
+                days[att.date.day] = att.day_status
+            
+            staff_attendance.append({
+                'staff': staff,
+                'days': days,
+                'present_count': sum(1 for status in days.values() if status == 'present'),
+                'absent_count': sum(1 for status in days.values() if status == 'absent'),
+                'leave_count': sum(1 for status in days.values() if status == 'on_leave'),
+            })
+            # print(staff_attendance)   
+        
+        context = {
+            'user_data': user_data,  # Keep original for other parts of template
+            'staff_attendance': staff_attendance,  # New for attendance table
+            'user_name': user_name,
+            'position': position,
+            'selected_month': month,
+            'selected_year': year,
+            'month_name': datetime(year, month, 1).strftime('%B'),
+            'days_range': range(1, num_days+1),
+        }
+        return render(request, "supervisor_view_staff_attendance.html", context)
+    else:
+        return render(request, "supervisor_view_staff_attendance.html")
