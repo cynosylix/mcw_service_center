@@ -302,6 +302,8 @@ def create_job_card(request):
             # stok.save()
             for i in parts_data:
                 part_obj=StockDB.objects.get(id=int(i['id']))
+                part_obj.Quantity=part_obj.Quantity-int(i["quantity"])
+                part_obj.save()   
                 JobCardPartsDB.objects.create(JobCart=JobCardobj,part_obj=part_obj,quantity=i["quantity"])
             
             return JsonResponse({'success': True})
