@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime, time
 from django.db import models
 
 from Owner.models import UsesDB
@@ -112,14 +112,14 @@ class Attendance(models.Model):
     
     # Morning session
     morning_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='absent')
-    morning_check_in = models.TimeField(null=True, blank=True, default='08:30')
-    morning_check_out = models.TimeField(null=True, blank=True, default='13:00')
+    morning_check_in = models.TimeField(null=True, blank=True, default=time(8, 30))
+    morning_check_out = models.TimeField(null=True, blank=True, default=time(13, 0))
     morning_remarks = models.TextField(null=True, blank=True)
     
     # Afternoon session
     afternoon_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='absent')
-    afternoon_check_in = models.TimeField(null=True, blank=True, default='14:00')
-    afternoon_check_out = models.TimeField(null=True, blank=True, default='17:00')
+    afternoon_check_in = models.TimeField(null=True, blank=True, default=time(14, 0))
+    afternoon_check_out = models.TimeField(null=True, blank=True, default=time(17, 0))
     afternoon_remarks = models.TextField(null=True, blank=True)
     
     # Overtime session
