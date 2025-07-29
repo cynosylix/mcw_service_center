@@ -128,7 +128,7 @@
     <div class="sidebar" id="sidebar">
         <a class="sidebar-brand d-flex align-items-center justify-content-center" href="#">
             <img src="{% static 'img/logo.png' %}" alt="MCW" height="50" class="me-2">
-            <span>MCW </span>
+            <span>MCW CRM</span>
         </a>
 
         <hr class="sidebar-divider">
@@ -141,27 +141,16 @@
                 <span>Dashboard</span>
             </a>
         </li> -->
-        <li class="nav-item">
-            <a class="nav-link" href="/Spare_Purchase/SparePurchase_home">
-                <i class="bi bi-box-seam"></i>
-                <span>Stock</span>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/Spare_Purchase/Attendance">
-                <i class="bi bi-people"></i>
-                <span>Attendance</span>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/Spare_Purchase/profile">
-                <i class="bi bi-file-earmark-text"></i>
-                <span>Profile</span>
-            </a>
-        </li>
 
         <!-- <li class="nav-item">
             <a class="nav-link" href="#">
+                <i class="bi bi-people"></i>
+                <span>Customers</span>
+            </a>
+        </li> -->
+
+        <li class="nav-item">
+            <a class="nav-link" href="/Supervisor/Supervisor_jobcard">
                 <i class="bi bi-briefcase"></i>
                 <span>Job Card</span>
             </a>
@@ -169,11 +158,33 @@
 
         <hr class="sidebar-divider">
 
-        <div class="sidebar-heading">Management</div> -->
+        <div class="sidebar-heading">Management</div>
 
+        <!-- <li class="nav-item">
+            <a class="nav-link" href="#">
+                <i class="bi bi-file-earmark-text"></i>
+                <span>Staff</span>
+            </a>
+        </li> -->
 
-
-
+        <!-- <li class="nav-item">
+            <a class="nav-link" href="#">
+                <i class="bi bi-box-seam"></i>
+                <span>Stock</span>
+            </a>
+        </li> -->
+        <li class="nav-item">
+            <a class="nav-link" href="/Supervisor/supervisor_Attendance">
+                <i class="bi bi-people"></i>
+                <span>Attendance</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/Supervisor/profile">
+                <i class="bi bi-file-earmark-text"></i>
+                <span>Profile</span>
+            </a>
+        </li>
 
         <!-- <li class="nav-item">
             <a class="nav-link" href="#">
@@ -181,7 +192,7 @@
                 <span>Settings</span>
             </a>
         </li> -->
-    </div>
+    </div>  
 
     <!-- Content Wrapper -->
     <div id="content">
@@ -274,7 +285,7 @@
                             <button id="editProfileBtn" class="btn btn-sm btn-primary">Edit Profile</button>
                         </div>
                         <div class="card-body">
-                            <form id="profileForm" method="POST" action="/Spare_Purchase/profileUpdate">
+                            <form id="profileForm" method="POST" action="/Supervisor/supervisor_profileUpdate">
                                 {% csrf_token %}
 
                                 <!-- Non-editable fields -->

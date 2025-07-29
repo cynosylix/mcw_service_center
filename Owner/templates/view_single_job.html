@@ -202,7 +202,12 @@
                 <span>Stock</span>
             </a>
         </li>
-
+        <li class="nav-item">
+            <a class="nav-link" href="/profile">
+                <i class="bi bi-file-earmark-text"></i>
+                <span>Profile</span>
+            </a>
+        </li>
         <li class="nav-item">
             <a class="nav-link" href="#">
                 <i class="bi bi-gear"></i>
@@ -220,8 +225,36 @@
                 <i class="bi bi-list"></i>
             </button>
 
+
             <!-- Topbar Navbar -->
             <ul class="navbar-nav ms-auto">
+                <!-- Notifications Dropdown -->
+                <li class="nav-item dropdown no-arrow mx-1">
+                    <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
+                        data-bs-toggle="dropdown">
+                        <i class="bi bi-bell-fill"></i>
+                        <span class="badge bg-danger badge-counter">{{reminderslen}}</span>
+                    </a>
+                    <div class="dropdown-list dropdown-menu dropdown-menu-end shadow">
+                        <h6 class="dropdown-header">Alerts Center</h6>
+                        {% for i in reminders %}
+                        <a class="dropdown-item d-flex align-items-center" href="#">
+                            <div class="me-4">
+                                <div class="icon-circle bg-primary">
+                                    <i class="bi bi-file-earmark-text text-white"></i>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="small text-gray-500">{{i.remindDate}} :- {{i.Title}}</div>
+                                <span class="font-weight-bold">{{i.note}}</span>
+                            </div>
+
+                        </a>
+                        {% endfor %}
+                        <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
+                    </div>
+                </li>
                 <!-- User Dropdown -->
                 <li class="nav-item dropdown no-arrow">
                     <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
@@ -230,7 +263,7 @@
                         <img class="img-profile rounded-circle" src="{% static 'img/logo.png' %}" height="40px">
                     </a>
                     <div class="dropdown-menu dropdown-menu-end shadow">
-                        <a class="dropdown-item" href="#">
+                        <a class="dropdown-item" href="/profile">
                             <i class="bi bi-person-fill me-2"></i>
                             Profile
                         </a>
@@ -251,6 +284,7 @@
 
         <!-- Begin Page Content -->
         <div class="container-fluid p-4">
+
             <!-- Page Heading -->
             <div class="d-sm-flex align-items-center justify-content-between mb-4">
                 <h1 class="h3 mb-0 text-gray-800">Job Card Details</h1>
@@ -263,6 +297,7 @@
                     </a> -->
                 </div>
             </div>
+
 
             <!-- Job Card Details -->
             <div class="row">

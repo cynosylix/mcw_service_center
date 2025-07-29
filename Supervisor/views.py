@@ -16,7 +16,7 @@ import os
 from django.conf import settings
 from datetime import datetime
 from datetime import datetime
-
+from django.contrib import messages
 def Supervisor_home(request):
     return render(request,"SupervisorHome.html")
 
@@ -33,7 +33,21 @@ def Supervisor_jobcard(request):
 
     else:return redirect("login")
 
+def profile(request):
+    user_id=request.session['user_id'] 
+    user_name=request.session['user_name'] 
+    position=request.session['user_position']
+    userobj=UsesDB.objects.filter(id=user_id)
+    data={"user":user_name,"userobj":userobj}
 
+    return render(request,"supervisor_profile.html",data)
+
+def supervisor_Attendance(request):
+    user_id=request.session['user_id'] 
+    user_name=request.session['user_name'] 
+    position=request.session['user_position']
+    data={"user":user_name}
+    return render(request,"supervisor_Attendance.html",data)
 
 def Supervisor_jobcard_create_pg(request):
     user_id=request.session['user_id'] 
@@ -259,6 +273,7 @@ def is_valid_email(email):
     return re.match(email_regex, email) is not None
 @csrf_exempt  # Only if you're having CSRF issues during development
 def create_job_card(request):
+    print(">...........................")
     if request.method == 'POST':
         user_id=request.session['user_id'] 
         userobj=UsesDB.objects.get(id=user_id)
@@ -359,8 +374,8 @@ def record_payment(request):
             job_card.Paymentdonebynote=newPaymentdonebynote
 
 
-            paidaomut=float(format(job_card.paydPayent, '.2f'))
-            totalamount=float(format(job_card.TotalPayent, '.2f'))
+            paidaomut=int(float(job_card.paydPayent))
+            totalamount=int(float(job_card.TotalPayent))
             print(f"{paidaomut} {totalamount}")
             if paidaomut==totalamount:
                 job_card.paymentStatus="Completed"
@@ -394,12 +409,13 @@ from reportlab.lib.units import inch
 from datetime import datetime, timedelta
 
 def generate_invoice(request):
-    output_filename="invoice.pdf"
+    
     
     data = json.loads(request.body)
+    output_filename=data["invoice_number"]
     jobObj=JobCardDB.objects.get(id=int(data["job_card_id"]))
     address=jobObj.customer.address
-    filename = f"Invoice_{'invoice_number'}.pdf"
+    filename = f"Invoice_{output_filename}.pdf"
     filepath = os.path.join(settings.MEDIA_ROOT, 'invoices', filename)
     
     doc = SimpleDocTemplate(filepath, pagesize=letter,
@@ -585,7 +601,44 @@ def generate_invoice(request):
     doc.build(elements)
     print(f"Premium invoice generated: {filepath}")
     
+    
     return JsonResponse({
         'success': True,
         'invoice_url': os.path.join(settings.MEDIA_URL, 'invoices', filename)
     })
+
+
+
+
+def supervisor_profileUpdate(request):
+    user_id=request.session['user_id'] 
+    user_name=request.session['user_name'] 
+    position=request.session['user_position'] 
+    if request.method == 'POST':
+        userobj=UsesDB.objects.get(id=user_id)
+
+        # Get data from POST request
+        email = request.POST.get('email')
+        mobile = request.POST.get('mobile')
+        new_password = request.POST.get('new_password')
+        current_password = request.POST.get('current_password')
+        
+        print(email)
+        print(mobile)
+        print(new_password)
+        if email and is_valid_email(email):
+            # Valid email
+            userobj.email=email
+        userobj.mobile=mobile
+        a='Profile updated successfully!'
+        if len(new_password)!=0:
+            if userobj.password==current_password:
+                userobj.password=new_password
+            else:
+                a=a + "  incorect current password ."
+        userobj.save()
+        
+        messages.success(request, a)
+        return redirect('Supervisorprofile')
+    
+    return redirect('Supervisorprofile')

@@ -1,5 +1,7 @@
 from django.db import models
 
+
+
 # Create your models here.
 class ShopDB(models.Model):
     id = models.AutoField(primary_key=True)
@@ -43,3 +45,23 @@ class UsesDB(models.Model):
 
     def __str__(self):
         return f"{self.id} - {self.name} - {self.position}"
+    
+
+class remindersDB(models.Model):
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('In Progress', 'In Progress'),
+        ('Completed', 'Completed'),
+        ('On Hold', 'On Hold'),
+    ]
+    id = models.AutoField(primary_key=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    Title = models.CharField(max_length=100,blank=True, null=True)
+    note = models.TextField(blank=True, null=True)
+    createdby = models.ForeignKey(UsesDB, on_delete=models.CASCADE, blank=True, null=True,related_name='created_reminders')
+    assignedto = models.ForeignKey(UsesDB, on_delete=models.CASCADE, blank=True, null=True,related_name='assigned_reminders')
+    remindDate=models.CharField(max_length=15, blank=True, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending', blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.id} - {self.Title} "

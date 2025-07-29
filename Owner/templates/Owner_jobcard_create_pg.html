@@ -191,7 +191,12 @@
                 <span>Stock</span>
             </a>
         </li>
-
+        <li class="nav-item">
+            <a class="nav-link" href="/profile">
+                <i class="bi bi-file-earmark-text"></i>
+                <span>Profile</span>
+            </a>
+        </li>
         <li class="nav-item">
             <a class="nav-link" href="#">
                 <i class="bi bi-gear"></i>
@@ -216,21 +221,25 @@
                     <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
                         data-bs-toggle="dropdown">
                         <i class="bi bi-bell-fill"></i>
-                        <span class="badge bg-danger badge-counter">3+</span>
+                        <span class="badge bg-danger badge-counter">{{reminderslen}}</span>
                     </a>
                     <div class="dropdown-list dropdown-menu dropdown-menu-end shadow">
                         <h6 class="dropdown-header">Alerts Center</h6>
+                        {% for i in reminders %}
                         <a class="dropdown-item d-flex align-items-center" href="#">
-                            <div class="me-3">
+                            <div class="me-4">
                                 <div class="icon-circle bg-primary">
                                     <i class="bi bi-file-earmark-text text-white"></i>
                                 </div>
                             </div>
+                            
                             <div>
-                                <div class="small text-gray-500">December 12, 2023</div>
-                                <span class="font-weight-bold">A new monthly report is ready to download!</span>
+                                <div class="small text-gray-500">{{i.remindDate}} :- {{i.Title}}</div>
+                                <span class="font-weight-bold">{{i.note}}</span>
                             </div>
+                            
                         </a>
+                        {% endfor %}
                         <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
                     </div>
                 </li> -->
@@ -243,7 +252,7 @@
                         <img class="img-profile rounded-circle" src="{% static 'img/logo.png' %}" height="40px">
                     </a>
                     <div class="dropdown-menu dropdown-menu-end shadow">
-                        <a class="dropdown-item" href="#">
+                        <a class="dropdown-item" href="/profile">
                             <i class="bi bi-person-fill me-2"></i>
                             Profile
                         </a>
@@ -275,7 +284,7 @@
             </div>
 
             <!-- Job Card Form -->
-            <form id="jobCardForm" method="post" action="{% url 'create_job_card' %}">
+            <form id="jobCardForm" method="post" action="{% url 'owner_create_job_card' %}">
                 {% csrf_token %}
                 <div class="row">
                     <div class="col-lg-8">
@@ -839,7 +848,7 @@
                     if (data.success) {
                         // alert('Job card created successfully!');
                         // Redirect or clear form as needed
-                        window.location.href = '/Supervisor/Supervisor_jobcard';
+                        window.location.href = '/Owner_jobcard_create_pg';
                         
                     } else {
                         alert('Error: ' + (data.error || 'Unknown error occurred'));

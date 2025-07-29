@@ -1,8 +1,8 @@
 from django.contrib import admin
 
-from Owner.models import UsesDB,ShopDB
+from Owner.models import UsesDB,remindersDB
 
 # Register your models here.  
 
 admin.site.register(UsesDB)
-admin.site.register(ShopDB)
+admin.site.register(remindersDB)

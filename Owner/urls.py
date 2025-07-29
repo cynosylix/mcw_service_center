@@ -12,4 +12,11 @@ urlpatterns = [
     path('Owner_jobcard_create_pg', views.Owner_jobcard_create_pg, name='Owner_jobcard_create_pg'),
 
     path('login_btn',views.login_btn),
+    path('profile', views.profile, name='ownerprofile'),
+
+    path('owner_profileUpdate', views.owner_profileUpdate, name='owner_profileUpdate'),
+    path('owner_create_job_card/', views.owner_create_job_card, name='owner_create_job_card'),
+    path('reminders', views.reminders, name='reminders'),
+
+
 ]
