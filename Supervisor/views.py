@@ -178,6 +178,7 @@ def attendance_list(request):
             # Get or create attendance record
             attendance, created = Attendance.objects.get_or_create(
                 employee=employee,
+                date=date.today(),
                 defaults={
                     'morning_status': 'absent',
                     'afternoon_status': 'absent',

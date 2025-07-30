@@ -4,6 +4,8 @@ from Owner.models import UsesDB
 from Spare_Purchase.models import StockDB
 from django.http import JsonResponse
 import json
+from django.db.models import Q
+from Supervisor.models import JobCardDB, JobCardPartsDB
 
 from Supervisor.models import Attendance
 
@@ -17,11 +19,68 @@ def Owner_home(request):
 def OwnerCustomerPg(request):
     return render(request,"OwnerCustomerPg.html")
 
-def JobCardpg(request):
-    return render(request,"JobCard.html")
+def Owner_jobcard_create_pg(request):
+    user_id=request.session['user_id'] 
+    user_name=request.session['user_name'] 
+    position=request.session['user_position'] 
+    if position=="Owner":
+        usertable=UsesDB.objects.all()
+        worker=[]
+        stock=[]
+        for i in usertable:
+            if i.position!="Owner" and i.position!="Supervisor" and i.position!="Purchase Staff":
+                worker.append({"id":i.id,"name":i.name,"position":i.position,})
+        available_items = StockDB.objects.filter(Q(Status='In Stock') | Q(Status='Low Stock'))
+        for i in available_items:
+            stock.append({"id":i.id,"name":i.ItemName,"quantity":i.Quantity,"price":i.Price})
+        
+        data={"worker":worker,"stock":stock,"user_name":user_name,"user_id":user_id}
+        
+        return render(request,"Owner_jobcard_create_pg.html",{'data': json.dumps(data)})
 
-def view_single_job(request):
-    return render(request,"view_single_job.html")
+    else:return redirect("login")
+    # return render(request,"Owner_jobcard_create_pg.html")
+def JobCardpg(request):
+    user_id=request.session['user_id'] 
+    user_name=request.session['user_name'] 
+    position=request.session['user_position'] 
+    if position=="Owner":
+        JobCardDBdata=JobCardDB.objects.all()[::-1]
+        
+        data={"JobCardDBdata":JobCardDBdata,"name":user_name}
+        return render(request,"JobCard.html",data)
+
+    else:return redirect("login")
+    # return render(request,"JobCard.html")
+
+def view_single_job(request,id):
+    user_id=request.session['user_id'] 
+    user_name=request.session['user_name'] 
+    position=request.session['user_position'] 
+    if position=="Owner":
+            JobCardDBdata=JobCardDB.objects.filter(id=id)
+            if len(JobCardDBdata)>0:
+                Jo=JobCardDB.objects.get(id=id)
+                parts=JobCardPartsDB.objects.filter(JobCart=Jo)
+
+                PartsTotal=0
+                for i in parts:
+                    PartsTotal=PartsTotal+(int(i.part_obj.Price)*int(i.quantity))
+                labercost=float(Jo.labor_hours)*float(Jo.hourly_rate)
+                
+                worker=[]
+                w=UsesDB.objects.all()
+                for i in w:
+                    if i.position!="Owner":
+                        worker.append({"id":i.id,"name":i.name,"position":i.position})
+
+                paymentbalance=JobCardDBdata[0].TotalPayent-JobCardDBdata[0].paydPayent
+                print(paymentbalance)
+                data={"name":user_name,"JobCardDBdata":JobCardDBdata[0],"parts":parts,"PartsTotal":PartsTotal,"labercost":labercost,"worker":worker,"paymentbalance":paymentbalance}
+                return render(request,"view_single_job.html",data)
+            else:return redirect('JobCardpg')
+    else:return redirect("login")
+    # return render(request,"view_single_job.html")
 
 from django.shortcuts import render
 from datetime import datetime
@@ -34,7 +93,7 @@ def ViewStaffPg(request):
     position = request.session.get('user_position')
     
     if position == "Owner":
-        user_data = UsesDB.objects.exclude(position='Owner').exclude(position='Supervisor')
+        user_data = UsesDB.objects.exclude(position='Owner')
         
         # Get selected month and year (default to current)
         now = datetime.now()
@@ -165,17 +224,22 @@ def owner_attendance_list(request):
    
     try:
         attendance_data = []
-        employees = UsesDB.objects.exclude(position='Owner').exclude(position='Supervisor')
-        print("employees:", employees)
+        today = date.today()
+        employees = UsesDB.objects.exclude(position='Owner')
         
         for employee in employees:
-            # Get or create attendance record
+            # Get or create attendance record with default values
             attendance, created = Attendance.objects.get_or_create(
                 employee=employee,
+                date=today,
                 defaults={
                     'morning_status': 'absent',
                     'afternoon_status': 'absent',
-                    'day_status': 'absent'
+                    'day_status': 'absent',
+                    'morning_check_in': None,
+                    'morning_check_out': None,
+                    'afternoon_check_in': None,
+                    'afternoon_check_out': None
                 }
             )
             
@@ -184,39 +248,38 @@ def owner_attendance_list(request):
                 'employee_id': employee.id,
                 'employee_name': employee.name,
                 'position': employee.position,
-                'date': attendance.date,
+                'date': attendance.date.strftime('%Y-%m-%d'),
                 
                 # Morning data
-                'morning_check_in': attendance.morning_check_in.isoformat()[:5] if attendance.morning_check_in else None,
-                'morning_check_out': attendance.morning_check_out.isoformat()[:5] if attendance.morning_check_out else None,
+                'morning_check_in': attendance.morning_check_in.strftime('%H:%M') if attendance.morning_check_in else '',
+                'morning_check_out': attendance.morning_check_out.strftime('%H:%M') if attendance.morning_check_out else '',
                 'morning_status': attendance.morning_status,
-                'morning_remarks': attendance.morning_remarks,
+                'morning_remarks': attendance.morning_remarks or '',
                 
                 # Afternoon data
-                'afternoon_check_in': attendance.afternoon_check_in.isoformat()[:5] if attendance.afternoon_check_in else None,
-                'afternoon_check_out': attendance.afternoon_check_out.isoformat()[:5] if attendance.afternoon_check_out else None,
+                'afternoon_check_in': attendance.afternoon_check_in.strftime('%H:%M') if attendance.afternoon_check_in else '',
+                'afternoon_check_out': attendance.afternoon_check_out.strftime('%H:%M') if attendance.afternoon_check_out else '',
                 'afternoon_status': attendance.afternoon_status,
-                'afternoon_remarks': attendance.afternoon_remarks,
+                'afternoon_remarks': attendance.afternoon_remarks or '',
                 
                 # Overtime data
-                'overtime_check_in': attendance.overtime_check_in.isoformat()[:5] if attendance.overtime_check_in else None,
-                'overtime_check_out': attendance.overtime_check_out.isoformat()[:5] if attendance.overtime_check_out else None,
+                'overtime_check_in': attendance.overtime_check_in.strftime('%H:%M') if attendance.overtime_check_in else '',
+                'overtime_check_out': attendance.overtime_check_out.strftime('%H:%M') if attendance.overtime_check_out else '',
                 'overtime_hours': float(attendance.overtime_hours),
                 'overtime_approved': attendance.overtime_approved,
-                'overtime_remarks': attendance.overtime_remarks,
+                'overtime_remarks': attendance.overtime_remarks or '',
                 
                 # Summary data
                 'total_working_hours': float(attendance.total_working_hours),
                 'late_hours': float(attendance.late_hours),
                 'day_status': attendance.day_status,
-                'daily_remarks': attendance.daily_remarks,
+                'daily_remarks': attendance.daily_remarks or '',
             })
             
         return JsonResponse(attendance_data, safe=False)
     
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
-    
 
 from datetime import datetime
 @csrf_exempt
