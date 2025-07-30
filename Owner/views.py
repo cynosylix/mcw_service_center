@@ -224,18 +224,22 @@ def owner_attendance_list(request):
    
     try:
         attendance_data = []
-        employees = UsesDB.objects.exclude(position='Owner').exclude(position='Supervisor')
-        print("employees:", employees)
+        today = date.today()
+        employees = UsesDB.objects.exclude(position='Owner')
         
         for employee in employees:
-            # Get or create attendance record
+            # Get or create attendance record with default values
             attendance, created = Attendance.objects.get_or_create(
                 employee=employee,
-                date=date.today(),
+                date=today,
                 defaults={
                     'morning_status': 'absent',
                     'afternoon_status': 'absent',
-                    'day_status': 'absent'
+                    'day_status': 'absent',
+                    'morning_check_in': None,
+                    'morning_check_out': None,
+                    'afternoon_check_in': None,
+                    'afternoon_check_out': None
                 }
             )
             
@@ -244,39 +248,38 @@ def owner_attendance_list(request):
                 'employee_id': employee.id,
                 'employee_name': employee.name,
                 'position': employee.position,
-                'date': attendance.date,
+                'date': attendance.date.strftime('%Y-%m-%d'),
                 
                 # Morning data
-                'morning_check_in': attendance.morning_check_in.isoformat()[:5] if attendance.morning_check_in else None,
-                'morning_check_out': attendance.morning_check_out.isoformat()[:5] if attendance.morning_check_out else None,
+                'morning_check_in': attendance.morning_check_in.strftime('%H:%M') if attendance.morning_check_in else '',
+                'morning_check_out': attendance.morning_check_out.strftime('%H:%M') if attendance.morning_check_out else '',
                 'morning_status': attendance.morning_status,
-                'morning_remarks': attendance.morning_remarks,
+                'morning_remarks': attendance.morning_remarks or '',
                 
                 # Afternoon data
-                'afternoon_check_in': attendance.afternoon_check_in.isoformat()[:5] if attendance.afternoon_check_in else None,
-                'afternoon_check_out': attendance.afternoon_check_out.isoformat()[:5] if attendance.afternoon_check_out else None,
+                'afternoon_check_in': attendance.afternoon_check_in.strftime('%H:%M') if attendance.afternoon_check_in else '',
+                'afternoon_check_out': attendance.afternoon_check_out.strftime('%H:%M') if attendance.afternoon_check_out else '',
                 'afternoon_status': attendance.afternoon_status,
-                'afternoon_remarks': attendance.afternoon_remarks,
+                'afternoon_remarks': attendance.afternoon_remarks or '',
                 
                 # Overtime data
-                'overtime_check_in': attendance.overtime_check_in.isoformat()[:5] if attendance.overtime_check_in else None,
-                'overtime_check_out': attendance.overtime_check_out.isoformat()[:5] if attendance.overtime_check_out else None,
+                'overtime_check_in': attendance.overtime_check_in.strftime('%H:%M') if attendance.overtime_check_in else '',
+                'overtime_check_out': attendance.overtime_check_out.strftime('%H:%M') if attendance.overtime_check_out else '',
                 'overtime_hours': float(attendance.overtime_hours),
                 'overtime_approved': attendance.overtime_approved,
-                'overtime_remarks': attendance.overtime_remarks,
+                'overtime_remarks': attendance.overtime_remarks or '',
                 
                 # Summary data
                 'total_working_hours': float(attendance.total_working_hours),
                 'late_hours': float(attendance.late_hours),
                 'day_status': attendance.day_status,
-                'daily_remarks': attendance.daily_remarks,
+                'daily_remarks': attendance.daily_remarks or '',
             })
             
         return JsonResponse(attendance_data, safe=False)
     
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
-    
 
 from datetime import datetime
 @csrf_exempt

@@ -465,105 +465,111 @@
                 });
         }
 
-        // Render staff cards
-        function renderStaffCards(staffData) {
-            const staffList = document.getElementById('staffList');
-            staffList.innerHTML = '';
+       function renderStaffCards(staffData) {
+    const staffList = document.getElementById('staffList');
+    staffList.innerHTML = '';
 
-            staffData.forEach(employee => {
-                const statusClass = {
-                    'present': 'badge-present',
-                    'absent': 'badge-absent',
-                    'late': 'badge-late',
-                    'half_day': 'badge-halfday',
-                    'on_leave': 'badge-leave',
-                    'overtime': 'badge-overtime'
-                }[employee.day_status] || 'badge-secondary';
+    if (staffData.length === 0) {
+        staffList.innerHTML = `
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>No staff members found
+            </div>
+        `;
+        return;
+    }
 
-                const card = document.createElement('div');
-                card.className = 'employee-card mb-3';
-                card.innerHTML = `
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div>
-                            <h6 class="mb-0">${employee.employee_name}</h6>
-                            <small class="text-muted">${employee.position}</small>
-                        </div>
-                        <span class="status-badge ${statusClass}">${employee.day_status}</span>
+    staffData.forEach(employee => {
+        const statusClass = {
+            'present': 'badge-present',
+            'absent': 'badge-absent',
+            'late': 'badge-late',
+            'half_day': 'badge-halfday',
+            'on_leave': 'badge-leave',
+            'overtime': 'badge-overtime'
+        }[employee.day_status] || 'badge-secondary';
+
+        const card = document.createElement('div');
+        card.className = 'employee-card mb-3';
+        card.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h6 class="mb-0">${employee.employee_name}</h6>
+                    <small class="text-muted">${employee.position}</small>
+                </div>
+                <span class="status-badge ${statusClass}">${employee.day_status}</span>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <h6 class="d-flex align-items-center">
+                        <i class="bi bi-sunrise me-2"></i>Morning
+                    </h6>
+                    <div class="time-input-group">
+                        <input type="time" class="form-control form-control-sm morning-checkin-time" 
+                            value="${employee.morning_check_in || ''}" placeholder="Check-in">
+                        <input type="time" class="form-control form-control-sm morning-checkout-time" 
+                            value="${employee.morning_check_out || ''}" placeholder="Check-out">
                     </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <h6 class="d-flex align-items-center">
-                                <i class="bi bi-sunrise me-2"></i>Morning
-                            </h6>
-                            <div class="time-input-group">
-                                <input type="time" class="form-control form-control-sm morning-checkin-time" 
-                                    value="${employee.morning_check_in || ''}">
-                                <input type="time" class="form-control form-control-sm morning-checkout-time" 
-                                    value="${employee.morning_check_out || ''}">
-                            </div>
-                            <select class="form-select form-select-sm mb-2 morning-status">
-                                <option value="present" ${employee.morning_status === 'present' ? 'selected' : ''}>Present</option>
-                                <option value="absent" ${employee.morning_status === 'absent' ? 'selected' : ''}>Absent</option>
-                            </select>
-                            <button class="btn btn-sm btn-primary w-100 morning-save">
-                                <i class="bi bi-save me-1"></i>Save Morning
-                            </button>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <h6 class="d-flex align-items-center">
-                                <i class="bi bi-sunset me-2"></i>Afternoon
-                            </h6>
-                            <div class="time-input-group">
-                                <input type="time" class="form-control form-control-sm afternoon-checkin-time" 
-                                    value="${employee.afternoon_check_in || ''}">
-                                <input type="time" class="form-control form-control-sm afternoon-checkout-time" 
-                                    value="${employee.afternoon_check_out || ''}">
-                            </div>
-                            <select class="form-select form-select-sm mb-2 afternoon-status">
-                                <option value="present" ${employee.afternoon_status === 'present' ? 'selected' : ''}>Present</option>
-                                <option value="absent" ${employee.afternoon_status === 'absent' ? 'selected' : ''}>Absent</option>
-                            </select>
-                            <button class="btn btn-sm btn-primary w-100 afternoon-save">
-                                <i class="bi bi-save me-1"></i>Save Afternoon
-                            </button>
-                        </div>
+                    <select class="form-select form-select-sm mb-2 morning-status">
+                        <option value="present" ${employee.morning_status === 'present' ? 'selected' : ''}>Present</option>
+                        <option value="absent" ${employee.morning_status === 'absent' ? 'selected' : ''}>Absent</option>
+                        <option value="half_day" ${employee.morning_status === 'half_day' ? 'selected' : ''}>Half Day</option>
+                        <option value="on_leave" ${employee.morning_status === 'on_leave' ? 'selected' : ''}>On Leave</option>
+                    </select>
+                    <button class="btn btn-sm btn-primary w-100 morning-save" data-attendance-id="${employee.id}">
+                        <i class="bi bi-save me-1"></i>Save Morning
+                    </button>
+                </div>
+                
+                <div class="col-md-6">
+                    <h6 class="d-flex align-items-center">
+                        <i class="bi bi-sunset me-2"></i>Afternoon
+                    </h6>
+                    <div class="time-input-group">
+                        <input type="time" class="form-control form-control-sm afternoon-checkin-time" 
+                            value="${employee.afternoon_check_in || ''}" placeholder="Check-in">
+                        <input type="time" class="form-control form-control-sm afternoon-checkout-time" 
+                            value="${employee.afternoon_check_out || ''}" placeholder="Check-out">
                     </div>
-                    
-                    <!-- Overtime Section -->
-                    <div class="overtime-section">
-                        <h6 class="d-flex align-items-center">
-                            <i class="bi bi-moon-stars me-2"></i>Overtime
-                        </h6>
-                        <div class="time-input-group">
-                            <input type="time" class="form-control form-control-sm overtime-checkin-time" 
-                                value="${employee.overtime_check_in || ''}" placeholder="Check-in">
-                            <input type="time" class="form-control form-control-sm overtime-checkout-time" 
-                                value="${employee.overtime_check_out || ''}" placeholder="Check-out">
-                        </div>
-                        <textarea class="form-control form-control-sm mb-2 overtime-remarks" 
-                            placeholder="Overtime remarks">${employee.overtime_remarks || ''}</textarea>
-                        <button class="btn btn-sm btn-warning w-100 overtime-save">
-                            <i class="bi bi-save me-1"></i>Save Overtime
-                        </button>
-                    </div>
-                `;
+                    <select class="form-select form-select-sm mb-2 afternoon-status">
+                        <option value="present" ${employee.afternoon_status === 'present' ? 'selected' : ''}>Present</option>
+                        <option value="absent" ${employee.afternoon_status === 'absent' ? 'selected' : ''}>Absent</option>
+                        <option value="half_day" ${employee.afternoon_status === 'half_day' ? 'selected' : ''}>Half Day</option>
+                        <option value="on_leave" ${employee.afternoon_status === 'on_leave' ? 'selected' : ''}>On Leave</option>
+                    </select>
+                    <button class="btn btn-sm btn-primary w-100 afternoon-save" data-attendance-id="${employee.id}">
+                        <i class="bi bi-save me-1"></i>Save Afternoon
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Overtime Section -->
+            <div class="overtime-section">
+                <h6 class="d-flex align-items-center">
+                    <i class="bi bi-moon-stars me-2"></i>Overtime
+                </h6>
+                <div class="time-input-group">
+                    <input type="time" class="form-control form-control-sm overtime-checkin-time" 
+                        value="${employee.overtime_check_in || ''}" placeholder="Check-in">
+                    <input type="time" class="form-control form-control-sm overtime-checkout-time" 
+                        value="${employee.overtime_check_out || ''}" placeholder="Check-out">
+                </div>
+                <textarea class="form-control form-control-sm mb-2 overtime-remarks" 
+                    placeholder="Overtime remarks">${employee.overtime_remarks || ''}</textarea>
+                <button class="btn btn-sm btn-warning w-100 overtime-save" data-attendance-id="${employee.id}">
+                    <i class="bi bi-save me-1"></i>Save Overtime
+                </button>
+            </div>
+        `;
 
-                // Add data attributes for identification
-                const elements = card.querySelectorAll('[class*="time"], [class*="status"], [class*="save"], [class*="remarks"]');
-                elements.forEach(el => el.setAttribute('data-attendance-id', employee.id));
+        staffList.appendChild(card);
+    });
 
-                staffList.appendChild(card);
-            });
-
-            // Attach event listeners
-            document.getElementById('refreshAttendanceBtn').addEventListener('click', loadStaff);
-            document.querySelectorAll('.morning-save').forEach(btn => btn.addEventListener('click', saveMorning));
-            document.querySelectorAll('.afternoon-save').forEach(btn => btn.addEventListener('click', saveAfternoon));
-            document.querySelectorAll('.overtime-save').forEach(btn => btn.addEventListener('click', saveOvertime));
-        }
-
+    // Attach event listeners
+    document.querySelectorAll('.morning-save').forEach(btn => btn.addEventListener('click', saveMorning));
+    document.querySelectorAll('.afternoon-save').forEach(btn => btn.addEventListener('click', saveAfternoon));
+    document.querySelectorAll('.overtime-save').forEach(btn => btn.addEventListener('click', saveOvertime));
+}
         function saveMorning(e) {
             const id = e.target.getAttribute('data-attendance-id');
             const card = e.target.closest('.employee-card');
