@@ -172,7 +172,9 @@ def attendance_list(request):
    
     try:
         attendance_data = []
-        employees = UsesDB.objects.exclude(position='Owner').exclude(position='Supervisor')
+        # Include Owner and Supervisor positions as well
+        employees =  UsesDB.objects.exclude(position__in=['Owner', 'Supervisor'])
+
         
         for employee in employees:
             # Get or create attendance record
@@ -223,6 +225,7 @@ def attendance_list(request):
     
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
+    
     
 
 from datetime import datetime
@@ -299,7 +302,9 @@ def supervisor_view_staff_attendance(request):
     position = request.session.get('user_position')
     
     if position == "Supervisor":
-        user_data = UsesDB.objects.exclude(position='Owner').exclude(position='Supervisor')
+        # Include Owner and Supervisor positions as well
+        user_data =UsesDB.objects.exclude(position__in=['Owner', 'Supervisor'])
+
         
         # Get selected month and year (default to current)
         now = datetime.now()
@@ -310,8 +315,9 @@ def supervisor_view_staff_attendance(request):
         _, num_days = monthrange(year, month)
         
         # Get attendance data
+        user_ids = list(user_data.values_list('id', flat=True))
         attendance_data = Attendance.objects.filter(
-            employee__in=user_data,
+            employee__id__in=user_ids,
             date__year=year,
             date__month=month
         ).select_related('employee')
@@ -401,12 +407,6 @@ def profile(request):
 
     return render(request,"supervisor_profile.html",data)
 
-def supervisor_Attendance(request):
-    user_id=request.session['user_id'] 
-    user_name=request.session['user_name'] 
-    position=request.session['user_position']
-    data={"user":user_name}
-    return render(request,"supervisor_Attendance.html",data)
 
 def Supervisor_jobcard_create_pg(request):
     user_id=request.session['user_id'] 

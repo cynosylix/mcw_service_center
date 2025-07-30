@@ -8,7 +8,6 @@ urlpatterns = [
     path('Supervisor_single_jobcard/<id>', views.Supervisor_single_jobcard, name='Supervisor_single_jobcard'),
     path('supervisor_view_stock', views.supervisor_view_stock, name='supervisor_view_stock'),
     path('profile', views.profile, name='Supervisorprofile'),
-    path('supervisor_Attendance', views.supervisor_Attendance, name='supervisor_Attendance'),
 
     path('supervisor_profileUpdate', views.supervisor_profileUpdate, name='supervisor_profileUpdate'),
 
