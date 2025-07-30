@@ -7,7 +7,10 @@ urlpatterns = [
     path('jobcard_create_pg', views.Supervisor_jobcard_create_pg, name='jobcard_create_pg'),
     path('Supervisor_single_jobcard/<id>', views.Supervisor_single_jobcard, name='Supervisor_single_jobcard'),
     path('supervisor_view_stock', views.supervisor_view_stock, name='supervisor_view_stock'),
+    path('profile', views.profile, name='Supervisorprofile'),
+    path('supervisor_Attendance', views.supervisor_Attendance, name='supervisor_Attendance'),
 
+    path('supervisor_profileUpdate', views.supervisor_profileUpdate, name='supervisor_profileUpdate'),
 
     path('create-job-card/', views.create_job_card, name='create_job_card'),
     path('returnparts/', views.returnparts, name='returnparts'),

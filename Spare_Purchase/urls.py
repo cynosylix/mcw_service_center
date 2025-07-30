@@ -7,6 +7,7 @@ urlpatterns = [
     path('profile', views.profile, name='profile'),
 
     path('logout', views.logout),
+    path('profileUpdate', views.profileUpdate, name='profileUpdate'),
 
     # ajax
     path('add_stock/', views.add_stock, name='add_stock'),

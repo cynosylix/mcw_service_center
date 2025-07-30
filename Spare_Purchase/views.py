@@ -6,6 +6,9 @@ from Owner.models import UsesDB
 from .models import StockDB
 from django.http import JsonResponse
 from datetime import datetime
+from django.contrib import messages
+import re
+
 # Create your views here.
 def SparePurchase_home(request):
     user_id=request.session['user_id'] 
@@ -33,12 +36,19 @@ def Attendance(request):
     return render(request,"Attendance.html")
 
 def profile(request):
-    return render(request,"profile.html")
+    user_id=request.session['user_id'] 
+    user_name=request.session['user_name'] 
+    position=request.session['user_position']
+    userobj=UsesDB.objects.filter(id=user_id)
+    data={"user":user_name,"userobj":userobj}
+
+    return render(request,"profile.html",data)
 
 def logout(request):
-    request.session['user_id'] = "logout"
-    request.session['user_name'] = "logout"
-    request.session['user_position'] = "logout"
+    user_id=request.session['user_id'] 
+    user_name=request.session['user_name'] 
+    position=request.session['user_position']
+    
     return redirect("login")
 
 
@@ -130,3 +140,41 @@ def add_stock(request):
                 return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
         return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
     else:return redirect("login")
+
+
+def is_valid_email(email):
+    # More comprehensive regex pattern for email validation
+    email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return re.match(email_regex, email) is not None
+def profileUpdate(request):
+    user_id=request.session['user_id'] 
+    user_name=request.session['user_name'] 
+    position=request.session['user_position'] 
+    if request.method == 'POST':
+        userobj=UsesDB.objects.get(id=user_id)
+
+        # Get data from POST request
+        email = request.POST.get('email')
+        mobile = request.POST.get('mobile')
+        new_password = request.POST.get('new_password')
+        current_password = request.POST.get('current_password')
+        
+        print(email)
+        print(mobile)
+        print(new_password)
+        if email and is_valid_email(email):
+            # Valid email
+            userobj.email=email
+        userobj.mobile=mobile
+        a='Profile updated successfully!'
+        if len(new_password)!=0:
+            if userobj.password==current_password:
+                userobj.password=new_password
+            else:
+                a=a + "  incorect current password ."
+        userobj.save()
+        
+        messages.success(request, a)
+        return redirect('profile')
+    
+    return redirect('profile')

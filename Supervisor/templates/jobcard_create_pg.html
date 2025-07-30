@@ -153,6 +153,7 @@
 
         <div class="sidebar-heading">Core</div>
 
+<<<<<<< HEAD
         <li class="nav-item">
              <a class="nav-link active"  href="/Supervisor/Supervisor_home">
                 <i class="bi bi-speedometer2"></i>
@@ -161,6 +162,16 @@
         </li>
         <!-- 
         <li class="nav-item">
+=======
+        <!-- <li class="nav-item">
+            <a class="nav-link active" href="#">
+                <i class="bi bi-speedometer2"></i>
+                <span>Dashboard</span>
+            </a>
+        </li> -->
+
+        <!-- <li class="nav-item">
+>>>>>>> sakrish
             <a class="nav-link" href="#">
                 <i class="bi bi-people"></i>
                 <span>Customers</span>
@@ -187,8 +198,22 @@
 
         <li class="nav-item">
             <a class="nav-link" href="/Supervisor/supervisor_view_stock">
+        <!-- <li class="nav-item">
+            <a class="nav-link" href="#">
                 <i class="bi bi-box-seam"></i>
                 <span>Stock</span>
+            </a>
+        </li> -->
+        <li class="nav-item">
+            <a class="nav-link" href="/Supervisor/supervisor_Attendance">
+                <i class="bi bi-people"></i>
+                <span>Attendance</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/Supervisor/profile">
+                <i class="bi bi-file-earmark-text"></i>
+                <span>Profile</span>
             </a>
         </li>
           <li class="nav-item">
@@ -198,12 +223,12 @@
             </a>
         </li>
 
-        <li class="nav-item">
+        <!-- <li class="nav-item">
             <a class="nav-link" href="#">
                 <i class="bi bi-gear"></i>
                 <span>Settings</span>
             </a>
-        </li>
+        </li> -->
     </div>
 
     <!-- Content Wrapper -->
@@ -249,7 +274,7 @@
                         <img class="img-profile rounded-circle" src="{% static 'img/logo.png' %}" height="40px">
                     </a>
                     <div class="dropdown-menu dropdown-menu-end shadow">
-                        <a class="dropdown-item" href="#">
+                        <a class="dropdown-item" href="/Supervisor/profile">
                             <i class="bi bi-person-fill me-2"></i>
                             Profile
                         </a>

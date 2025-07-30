@@ -128,40 +128,29 @@
     <div class="sidebar" id="sidebar">
         <a class="sidebar-brand d-flex align-items-center justify-content-center" href="#">
             <img src="{% static 'img/logo.png' %}" alt="MCW" height="50" class="me-2">
-            <span>MCW </span>
+            <span style="color: #f8f9fc;">MCW </span>
         </a>
 
         <hr class="sidebar-divider">
 
         <div class="sidebar-heading">Core</div>
 
-        <!-- <li class="nav-item">
-            <a class="nav-link active" href="#">
+        <li class="nav-item">
+            <a class="nav-link" href="/OwnerHome">
                 <i class="bi bi-speedometer2"></i>
                 <span>Dashboard</span>
             </a>
-        </li> -->
-        <li class="nav-item">
-            <a class="nav-link" href="/Spare_Purchase/SparePurchase_home">
-                <i class="bi bi-box-seam"></i>
-                <span>Stock</span>
-            </a>
         </li>
+
         <li class="nav-item">
-            <a class="nav-link" href="/Spare_Purchase/Attendance">
+            <a class="nav-link" href="/OwnerCustomerPg">
                 <i class="bi bi-people"></i>
-                <span>Attendance</span>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/Spare_Purchase/profile">
-                <i class="bi bi-file-earmark-text"></i>
-                <span>Profile</span>
+                <span>Customers</span>
             </a>
         </li>
 
-        <!-- <li class="nav-item">
-            <a class="nav-link" href="#">
+        <li class="nav-item">
+            <a class="nav-link" href="/JobCardpg">
                 <i class="bi bi-briefcase"></i>
                 <span>Job Card</span>
             </a>
@@ -169,19 +158,35 @@
 
         <hr class="sidebar-divider">
 
-        <div class="sidebar-heading">Management</div> -->
+        <div class="sidebar-heading">Management</div>
 
+        <li class="nav-item">
+            <a class="nav-link active" href="/ViewStaffPg">
+                <i class="bi bi-file-earmark-text"></i>
+                <span>Staff</span>
+            </a>
+        </li>
 
-
-
-
-        <!-- <li class="nav-item">
+        <li class="nav-item">
+            <a class="nav-link" href="/StockPg">
+                <i class="bi bi-box-seam"></i>
+                <span>Stock</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" href="/profile">
+                <i class="bi bi-file-earmark-text"></i>
+                <span>Profile</span>
+            </a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link" href="#">
                 <i class="bi bi-gear"></i>
                 <span>Settings</span>
             </a>
-        </li> -->
+        </li>
     </div>
+
 
     <!-- Content Wrapper -->
     <div id="content">
@@ -195,29 +200,32 @@
             <!-- Topbar Navbar -->
             <ul class="navbar-nav ms-auto">
                 <!-- Notifications Dropdown -->
-                <!-- <li class="nav-item dropdown no-arrow mx-1">
+                <li class="nav-item dropdown no-arrow mx-1">
                     <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
                         data-bs-toggle="dropdown">
                         <i class="bi bi-bell-fill"></i>
-                        <span class="badge bg-danger badge-counter">3+</span>
+                        <span class="badge bg-danger badge-counter">{{reminderslen}}</span>
                     </a>
                     <div class="dropdown-list dropdown-menu dropdown-menu-end shadow">
                         <h6 class="dropdown-header">Alerts Center</h6>
+                        {% for i in reminders %}
                         <a class="dropdown-item d-flex align-items-center" href="#">
-                            <div class="me-3">
+                            <div class="me-4">
                                 <div class="icon-circle bg-primary">
                                     <i class="bi bi-file-earmark-text text-white"></i>
                                 </div>
                             </div>
+                            
                             <div>
-                                <div class="small text-gray-500">December 12, 2023</div>
-                                <span class="font-weight-bold">A new monthly report is ready to download!</span>
+                                <div class="small text-gray-500">{{i.remindDate}} :- {{i.Title}}</div>
+                                <span class="font-weight-bold">{{i.note}}</span>
                             </div>
+                            
                         </a>
+                        {% endfor %}
                         <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
-                    </div> -->
+                    </div>
                 </li>
-
                 <!-- User Dropdown -->
                 <li class="nav-item dropdown no-arrow">
                     <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
@@ -226,7 +234,7 @@
                         <img class="img-profile rounded-circle" src="{% static 'img/logo.png' %}" height="40px">
                     </a>
                     <div class="dropdown-menu dropdown-menu-end shadow">
-                        <a class="dropdown-item" href="/Spare_Purchase/profile">
+                        <a class="dropdown-item" href="/profile">
                             <i class="bi bi-person-fill me-2"></i>
                             Profile
                         </a>
@@ -274,7 +282,7 @@
                             <button id="editProfileBtn" class="btn btn-sm btn-primary">Edit Profile</button>
                         </div>
                         <div class="card-body">
-                            <form id="profileForm" method="POST" action="/Spare_Purchase/profileUpdate">
+                            <form id="profileForm" method="POST" action="owner_profileUpdate">
                                 {% csrf_token %}
 
                                 <!-- Non-editable fields -->

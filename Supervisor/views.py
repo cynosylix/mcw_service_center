@@ -375,7 +375,7 @@ import os
 from django.conf import settings
 from datetime import datetime
 from datetime import datetime
-
+from django.contrib import messages
 def Supervisor_home(request):
     return render(request,"SupervisorHome.html")
 
@@ -392,7 +392,21 @@ def Supervisor_jobcard(request):
 
     else:return redirect("login")
 
+def profile(request):
+    user_id=request.session['user_id'] 
+    user_name=request.session['user_name'] 
+    position=request.session['user_position']
+    userobj=UsesDB.objects.filter(id=user_id)
+    data={"user":user_name,"userobj":userobj}
 
+    return render(request,"supervisor_profile.html",data)
+
+def supervisor_Attendance(request):
+    user_id=request.session['user_id'] 
+    user_name=request.session['user_name'] 
+    position=request.session['user_position']
+    data={"user":user_name}
+    return render(request,"supervisor_Attendance.html",data)
 
 def Supervisor_jobcard_create_pg(request):
     user_id=request.session['user_id'] 
@@ -604,6 +618,68 @@ def update_job_card(request):
         print(e)
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
+def is_valid_email(email):
+    # More comprehensive regex pattern for email validation
+    email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return re.match(email_regex, email) is not None
+@csrf_exempt  # Only if you're having CSRF issues during development
+def create_job_card(request):
+    if request.method == 'POST':
+        user_id=request.session['user_id'] 
+        userobj=UsesDB.objects.get(id=user_id)
+        try:
+            data = json.loads(request.body)
+            
+            # Process customer data
+            customer_data = data.get('customer', {})
+            em="dummy@gmail.com"
+            email = customer_data['email']
+            if email and is_valid_email(email):
+                # Valid email
+                em=email
+          
+            # Create or update customer model here
+            cusobj=CustomerDB.objects.create(createdby=userobj,name=customer_data["name"],phone=customer_data['phone'],email=em,address=customer_data["address"],
+                                             customernotes=customer_data["notes"])
+            # Process vehicle data
+            vehicle_data = data.get('vehicle', {})
+            # Create or update vehicle model here
+            VehicleDBobj=VehicleDB.objects.create(customer=cusobj,registration_no=vehicle_data['registration'],model=vehicle_data['model'],make=vehicle_data['make'],
+                                                  chassis_no=vehicle_data['chassis_no'],engine_no=vehicle_data['engine_no'],petrol_level=vehicle_data['petrol_level'],
+                                                  notes=vehicle_data['notes'])
+            
+            # Process job card data
+            job_data = data.get('job', {})
+            # print(job_data)
+            # Create job card model here
+            staffbj=UsesDB.objects.get(id=int(job_data['assigned_staff']))
+            JobCardobj=JobCardDB.objects.create(customer=cusobj,vehicle=VehicleDBobj,job_type=job_data['type'],received_date=job_data['received_date'],
+                                                delivery_date=job_data['delivery_date'],assigned_staff=staffbj,work_description=job_data['description']
+                                                ,status=job_data['status'],labor_hours=job_data['labor_hours'],hourly_rate=job_data['hourly_rate'],
+                                                discount=job_data['discount'],TotalPayent=job_data['estimated_total'])
+
+            
+            # Process parts data
+            parts_data = data.get('parts', [])
+            # Create job card parts relationships here
+            # stok=StockDB.objects.get(ItemCode=data['stockid'])
+            # stok.Quantity=stok.Quantity-int(data['Quantity'])
+            # stok.save()
+            for i in parts_data:
+                part_obj=StockDB.objects.get(id=int(i['id']))
+                part_obj.Quantity=part_obj.Quantity-int(i["quantity"])
+                part_obj.save()   
+                JobCardPartsDB.objects.create(JobCart=JobCardobj,part_obj=part_obj,quantity=i["quantity"])
+            
+            return JsonResponse({'success': True})
+            
+        except Exception as e:
+            print(str(e))
+            return JsonResponse({'success': False, 'error': str(e)}, status=400)
+    
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
 
 
 
@@ -648,8 +724,8 @@ def record_payment(request):
             job_card.Paymentdonebynote=newPaymentdonebynote
 
 
-            paidaomut=float(format(job_card.paydPayent, '.2f'))
-            totalamount=float(format(job_card.TotalPayent, '.2f'))
+            paidaomut=int(float(job_card.paydPayent))
+            totalamount=int(float(job_card.TotalPayent))
             print(f"{paidaomut} {totalamount}")
             if paidaomut==totalamount:
                 job_card.paymentStatus="Completed"
@@ -678,12 +754,13 @@ def record_payment(request):
 
 
 def generate_invoice(request):
-    output_filename="invoice.pdf"
+    
     
     data = json.loads(request.body)
+    output_filename=data["invoice_number"]
     jobObj=JobCardDB.objects.get(id=int(data["job_card_id"]))
     address=jobObj.customer.address
-    filename = f"Invoice_{'invoice_number'}.pdf"
+    filename = f"Invoice_{output_filename}.pdf"
     filepath = os.path.join(settings.MEDIA_ROOT, 'invoices', filename)
     
     doc = SimpleDocTemplate(filepath, pagesize=letter,
@@ -869,7 +946,42 @@ def generate_invoice(request):
     doc.build(elements)
     print(f"Premium invoice generated: {filepath}")
     
+    
     return JsonResponse({
         'success': True,
         'invoice_url': os.path.join(settings.MEDIA_URL, 'invoices', filename)
     })
+
+
+def supervisor_profileUpdate(request):
+    user_id=request.session['user_id'] 
+    user_name=request.session['user_name'] 
+    position=request.session['user_position'] 
+    if request.method == 'POST':
+        userobj=UsesDB.objects.get(id=user_id)
+
+        # Get data from POST request
+        email = request.POST.get('email')
+        mobile = request.POST.get('mobile')
+        new_password = request.POST.get('new_password')
+        current_password = request.POST.get('current_password')
+        
+        print(email)
+        print(mobile)
+        print(new_password)
+        if email and is_valid_email(email):
+            # Valid email
+            userobj.email=email
+        userobj.mobile=mobile
+        a='Profile updated successfully!'
+        if len(new_password)!=0:
+            if userobj.password==current_password:
+                userobj.password=new_password
+            else:
+                a=a + "  incorect current password ."
+        userobj.save()
+        
+        messages.success(request, a)
+        return redirect('Supervisorprofile')
+    
+    return redirect('Supervisorprofile')

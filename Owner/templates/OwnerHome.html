@@ -162,6 +162,28 @@
                 margin-left: 250px;
             }
         }
+
+
+        .dropdown-list {
+            max-width: 350px;
+            /* Adjust width as needed */
+        }
+
+        .dropdown-item {
+            white-space: normal !important;
+            /* Allow text wrapping */
+            word-wrap: break-word;
+            /* Break long words */
+        }
+
+        .reminder-note {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            /* Limit to 3 lines */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     </style>
 </head>
 
@@ -214,7 +236,12 @@
                 <span>Stock</span> <!-- Changed text to Stock -->
             </a>
         </li>
-
+        <li class="nav-item">
+            <a class="nav-link" href="/profile">
+                <i class="bi bi-file-earmark-text"></i>
+                <span>Profile</span>
+            </a>
+        </li>
         <li class="nav-item">
             <a class="nav-link" href="#">
                 <i class="bi bi-gear"></i>
@@ -249,25 +276,26 @@
                     <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
                         data-bs-toggle="dropdown">
                         <i class="bi bi-bell-fill"></i>
-                        <span class="badge bg-danger badge-counter">3+</span>
+                        <span class="badge bg-danger badge-counter">{{reminderslen}}</span>
                     </a>
                     <div class="dropdown-list dropdown-menu dropdown-menu-end shadow">
                         <h6 class="dropdown-header">Alerts Center</h6>
+                        {% for i in reminders %}
                         <a class="dropdown-item d-flex align-items-center" href="#">
-                            <div class="me-3">
+                            <div class="me-4">
                                 <div class="icon-circle bg-primary">
                                     <i class="bi bi-file-earmark-text text-white"></i>
                                 </div>
                             </div>
                             <div>
-                                <div class="small text-gray-500">December 12, 2023</div>
-                                <span class="font-weight-bold">A new monthly report is ready to download!</span>
+                                <div class="small text-gray-500">{{i.remindDate}} :- {{i.Title}}</div>
+                                <span class="font-weight-bold reminder-note">{{i.note}}</span>
                             </div>
                         </a>
+                        {% endfor %}
                         <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
                     </div>
                 </li>
-
                 <!-- Messages Dropdown -->
                 <!-- <li class="nav-item dropdown no-arrow mx-1">
                     <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button" data-bs-toggle="dropdown">
@@ -293,11 +321,11 @@
                 <li class="nav-item dropdown no-arrow">
                     <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                         data-bs-toggle="dropdown">
-                        <span class="me-2 d-none d-lg-inline text-gray-600 small">Admin User</span>
+                        <span class="me-2 d-none d-lg-inline text-gray-600 small">{{user}}</span>
                         <img class="img-profile rounded-circle" src="static/img/logo.png" height="40px">
                     </a>
                     <div class="dropdown-menu dropdown-menu-end shadow">
-                        <a class="dropdown-item" href="#">
+                        <a class="dropdown-item" href="/profile">
                             <i class="bi bi-person-fill me-2"></i>
                             Profile
                         </a>
@@ -323,15 +351,35 @@
         <!-- Begin Page Content -->
         <div class="container-fluid p-4">
             <!-- Page Heading -->
-            <!-- <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
-                <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-                    <i class="bi bi-download me-1"></i> Generate Report
-                </a>
-            </div> -->
+            <!-- Page Heading -->
+            <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                <div class="ms-auto">
+                    <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reminderModal">
+                        <i class="bi bi-pencil-square"></i> Create reminder
+                    </a>
+
+                </div>
+            </div>
 
             <!-- Content Row -->
             <div class="row">
+                <!-- Earnings (Annual) Card -->
+                <div class="col-xl-2 col-md-6 mb-4">
+                    <div class="card border-left-success shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col me-2">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                        Earnings (Annual)</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">${{Earnings_Annual}}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="bi bi-currency-dollar text-gray-300" style="font-size: 2rem;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <!-- Earnings (Monthly) Card -->
                 <div class="col-xl-2 col-md-6 mb-4">
                     <div class="card border-left-primary shadow h-100 py-2">
@@ -339,8 +387,40 @@
                             <div class="row no-gutters align-items-center">
                                 <div class="col me-2">
                                     <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                        Earnings (Monthly)</div>
-                                    <div class="h5 mb-0 font-weight-bold text-gray-800">$40,000</div>
+                                        Total Earnings (Monthly)</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">${{Total_Earnings}}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="bi bi-calendar-fill text-gray-300" style="font-size: 2rem;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-md-6 mb-4">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col me-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                        Pending Payments (Monthly)</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">${{Pending_Payments}}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="bi bi-calendar-fill text-gray-300" style="font-size: 2rem;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-md-6 mb-4">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col me-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                        Completed Payments (Monthly)</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">${{Completed_Payments}}</div>
                                 </div>
                                 <div class="col-auto">
                                     <i class="bi bi-calendar-fill text-gray-300" style="font-size: 2rem;"></i>
@@ -350,23 +430,7 @@
                     </div>
                 </div>
 
-                <!-- Earnings (Annual) Card -->
-                <div class="col-xl-2 col-md-6 mb-4">
-                    <div class="card border-left-success shadow h-100 py-2">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col me-2">
-                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                        Earnings (Annual)</div>
-                                    <div class="h5 mb-0 font-weight-bold text-gray-800">$215,000</div>
-                                </div>
-                                <div class="col-auto">
-                                    <i class="bi bi-currency-dollar text-gray-300" style="font-size: 2rem;"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
 
                 <!-- Tasks Card -->
                 <div class="col-xl-2 col-md-6 mb-4">
@@ -376,7 +440,7 @@
                                 <div class="col me-2">
                                     <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Tasks (Monthly)
                                     </div>
-                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">50%</div>
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{Tasks}}</div>
                                     <!-- <div class="row no-gutters align-items-center">
                                         <div class="col-auto">
                                             <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">50%</div>
@@ -396,6 +460,23 @@
                         </div>
                     </div>
                 </div>
+                <!-- Pending Requests Card -->
+                <div class="col-xl-2 col-md-6 mb-4">
+                    <div class="card border-left-warning shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col me-2">
+                                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                        Pending Job</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{Pending_jon}}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="bi bi-hourglass-split text-gray-300" style="font-size: 2rem;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <!-- Out Off Card -->
                 <div class="col-xl-2 col-md-6 mb-4">
                     <div class="card border-left-warning shadow h-100 py-2">
@@ -404,7 +485,24 @@
                                 <div class="col me-2">
                                     <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                         Out Off Stock</div>
-                                    <div class="h5 mb-0 font-weight-bold text-gray-800">18</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{outoffstock}}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="bi bi-box-seam text-gray-300" style="font-size: 2rem;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Out Off Card -->
+                <div class="col-xl-2 col-md-6 mb-4">
+                    <div class="card border-left-warning shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col me-2">
+                                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                        Low Stock</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{lowstock}}</div>
                                 </div>
                                 <div class="col-auto">
                                     <i class="bi bi-box-seam text-gray-300" style="font-size: 2rem;"></i>
@@ -414,291 +512,369 @@
                     </div>
                 </div>
 
-                <!-- Pending Requests Card -->
-                <div class="col-xl-2 col-md-6 mb-4">
-                    <div class="card border-left-warning shadow h-100 py-2">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col me-2">
-                                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                        Pending Requests</div>
-                                    <div class="h5 mb-0 font-weight-bold text-gray-800">18</div>
+
+
+
+                <!-- Content Row -->
+                <div class="row">
+                    <!-- Area Chart -->
+                    <div class="col-xl-8 col-lg-7">
+                        <div class="card shadow mb-4">
+                            <!-- Card Header -->
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">Earnings Overview</h6>
+                                <div class="dropdown no-arrow">
+                                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                                        data-bs-toggle="dropdown">
+                                        <i class="bi bi-three-dots-vertical text-gray-400"></i>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-end shadow">
+                                        <a class="dropdown-item" href="#">Action</a>
+                                        <a class="dropdown-item" href="#">Another action</a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="#">Something else here</a>
+                                    </div>
                                 </div>
-                                <div class="col-auto">
-                                    <i class="bi bi-hourglass-split text-gray-300" style="font-size: 2rem;"></i>
+                            </div>
+                            <!-- Card Body -->
+                            <div class="card-body">
+                                <div class="chart-area">
+                                    <canvas id="myAreaChart"></canvas>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- Pie Chart -->
+                    <div class="col-xl-4 col-lg-5">
+                        <div class="card shadow mb-4">
+                            <!-- Card Header -->
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">Revenue Sources</h6>
+                                <div class="dropdown no-arrow">
+                                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                                        data-bs-toggle="dropdown">
+                                        <i class="bi bi-three-dots-vertical text-gray-400"></i>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-end shadow">
+                                        <a class="dropdown-item" href="#">Action</a>
+                                        <a class="dropdown-item" href="#">Another action</a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="#">Something else here</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Card Body -->
+                            <div class="card-body">
+                                <div class="chart-pie pt-4 pb-2">
+                                    <canvas id="myPieChart"></canvas>
+                                </div>
+                                <div class="mt-4 text-center small">
+                                    <span class="me-2">
+                                        <i class="bi bi-circle-fill text-primary"></i> Direct
+                                    </span>
+                                    <span class="me-2">
+                                        <i class="bi bi-circle-fill text-success"></i> Social
+                                    </span>
+                                    <span class="me-2">
+                                        <i class="bi bi-circle-fill text-info"></i> Referral
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content Row -->
+                <div class="row">
+                    <!-- Recent Customers -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Recent Customers</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Status</th>
+                                                <th>Created At</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for i in last_customers %}
+                                            <tr>
+                                                <td>{{i.customer.name}}</td>
+                                                <td>
+                                                    {% if i.status == 'Completed' %}
+                                                    <span class="badge bg-success">Completed</span>
+                                                    {% elif i.status == 'In Progress' %}
+                                                    <span class="badge bg-warning text-dark">In Progress</span>
+                                                    {% elif i.status == 'Pending' %}
+                                                    <span class="badge bg-secondary">Pending</span>
+                                                    {% elif i.status == 'On Hold' %}
+                                                    <span class="badge bg-danger">On Hold</span>
+                                                    {% elif i.status == 'Approved' %}
+                                                    <span class="badge bg-info">Approved</span>
+                                                    {% else %}
+                                                    <span class="badge bg-light text-dark">{{i.status}}</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{i.created_at}}</td>
+                                                <td>
+                                                    <a href="/view_single_job/{{i.id}}"
+                                                        class="btn btn-sm btn-primary">View</a>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Projects -->
+                    <!-- <div class="col-lg-6 mb-4">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Recent Projects</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="list-group">
+                                    <a href="#" class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h5 class="mb-1">Website Redesign</h5>
+                                            <small class="text-success">Completed</small>
+                                        </div>
+                                        <p class="mb-1">Redesign of company website with modern UI/UX</p>
+                                        <small>Due: 2023-11-15</small>
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h5 class="mb-1">Mobile App Development</h5>
+                                            <small class="text-warning">In Progress</small>
+                                        </div>
+                                        <p class="mb-1">Development of iOS and Android mobile application</p>
+                                        <small>Due: 2023-12-01</small>
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h5 class="mb-1">CRM Implementation</h5>
+                                            <small class="text-danger">Overdue</small>
+                                        </div>
+                                        <p class="mb-1">Implementation of new CRM system for sales team</p>
+                                        <small>Due: 2023-10-20</small>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div> -->
                 </div>
             </div>
+            <!-- End of Page Content -->
+        </div>
+        <!-- End of Content Wrapper -->
 
-            <!-- Content Row -->
-            <div class="row">
-                <!-- Area Chart -->
-                <div class="col-xl-8 col-lg-7">
-                    <div class="card shadow mb-4">
-                        <!-- Card Header -->
-                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                            <h6 class="m-0 font-weight-bold text-primary">Earnings Overview</h6>
-                            <div class="dropdown no-arrow">
-                                <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                                    data-bs-toggle="dropdown">
-                                    <i class="bi bi-three-dots-vertical text-gray-400"></i>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-end shadow">
-                                    <a class="dropdown-item" href="#">Action</a>
-                                    <a class="dropdown-item" href="#">Another action</a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#">Something else here</a>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Card Body -->
-                        <div class="card-body">
-                            <div class="chart-area">
-                                <canvas id="myAreaChart"></canvas>
-                            </div>
-                        </div>
+        <!-- Scroll to Top Button-->
+        <a class="scroll-to-top rounded" href="#page-top">
+            <i class="bi bi-arrow-up"></i>
+        </a>
+
+        <!-- Reminder Modal -->
+        <div class="modal fade" id="reminderModal" tabindex="-1" aria-labelledby="reminderModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="reminderModalLabel">Create New Reminder</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                </div>
-
-                <!-- Pie Chart -->
-                <div class="col-xl-4 col-lg-5">
-                    <div class="card shadow mb-4">
-                        <!-- Card Header -->
-                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                            <h6 class="m-0 font-weight-bold text-primary">Revenue Sources</h6>
-                            <div class="dropdown no-arrow">
-                                <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                                    data-bs-toggle="dropdown">
-                                    <i class="bi bi-three-dots-vertical text-gray-400"></i>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-end shadow">
-                                    <a class="dropdown-item" href="#">Action</a>
-                                    <a class="dropdown-item" href="#">Another action</a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#">Something else here</a>
-                                </div>
+                    <div class="modal-body">
+                        <form id="reminderForm">
+                            <div class="mb-3">
+                                <label for="reminderTitle" class="form-label">Title</label>
+                                <input type="text" class="form-control" id="reminderTitle" required>
                             </div>
-                        </div>
-                        <!-- Card Body -->
-                        <div class="card-body">
-                            <div class="chart-pie pt-4 pb-2">
-                                <canvas id="myPieChart"></canvas>
+                            <div class="mb-3">
+                                <label for="assignedStaff" class="form-label">Assign To</label>
+                                <select class="form-select" id="assignedStaff" required>
+                                    <option value="" selected disabled>Select staff member</option>
+                                    {% for staff in users %} <!-- Django template tag -->
+                                    <option value="{{ staff.id }}">{{ staff.name }} ({{staff.position}})</option>
+                                    {% endfor %}
+                                </select>
                             </div>
-                            <div class="mt-4 text-center small">
-                                <span class="me-2">
-                                    <i class="bi bi-circle-fill text-primary"></i> Direct
-                                </span>
-                                <span class="me-2">
-                                    <i class="bi bi-circle-fill text-success"></i> Social
-                                </span>
-                                <span class="me-2">
-                                    <i class="bi bi-circle-fill text-info"></i> Referral
-                                </span>
+                            <div class="mb-3">
+                                <label for="reminderDate" class="form-label">Date</label>
+                                <input type="date" class="form-control" id="reminderDate" required>
                             </div>
-                        </div>
+                            <div class="mb-3">
+                                <label for="reminderNotes" class="form-label">Notes</label>
+                                <textarea class="form-control" id="reminderNotes" rows="3"></textarea>
+                            </div>
+                        </form>
                     </div>
-                </div>
-            </div>
-
-            <!-- Content Row -->
-            <div class="row">
-                <!-- Recent Customers -->
-                <div class="col-lg-6 mb-4">
-                    <div class="card shadow mb-4">
-                        <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">Recent Customers</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-bordered" width="100%" cellspacing="0">
-                                    <thead>
-                                        <tr>
-                                            <th>Name</th>
-                                            <th>Company</th>
-                                            <th>Join Date</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>John Doe</td>
-                                            <td>ABC Corp</td>
-                                            <td>2023-10-15</td>
-                                            <td>
-                                                <a href="#" class="btn btn-sm btn-primary">View</a>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>Jane Smith</td>
-                                            <td>XYZ Inc</td>
-                                            <td>2023-10-10</td>
-                                            <td>
-                                                <a href="#" class="btn btn-sm btn-primary">View</a>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>Michael Johnson</td>
-                                            <td>123 Enterprises</td>
-                                            <td>2023-10-05</td>
-                                            <td>
-                                                <a href="#" class="btn btn-sm btn-primary">View</a>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Recent Projects -->
-                <div class="col-lg-6 mb-4">
-                    <div class="card shadow mb-4">
-                        <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">Recent Projects</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="list-group">
-                                <a href="#" class="list-group-item list-group-item-action">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h5 class="mb-1">Website Redesign</h5>
-                                        <small class="text-success">Completed</small>
-                                    </div>
-                                    <p class="mb-1">Redesign of company website with modern UI/UX</p>
-                                    <small>Due: 2023-11-15</small>
-                                </a>
-                                <a href="#" class="list-group-item list-group-item-action">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h5 class="mb-1">Mobile App Development</h5>
-                                        <small class="text-warning">In Progress</small>
-                                    </div>
-                                    <p class="mb-1">Development of iOS and Android mobile application</p>
-                                    <small>Due: 2023-12-01</small>
-                                </a>
-                                <a href="#" class="list-group-item list-group-item-action">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h5 class="mb-1">CRM Implementation</h5>
-                                        <small class="text-danger">Overdue</small>
-                                    </div>
-                                    <p class="mb-1">Implementation of new CRM system for sales team</p>
-                                    <small>Due: 2023-10-20</small>
-                                </a>
-                            </div>
-                        </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="saveReminder">Save Reminder</button>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- End of Page Content -->
-    </div>
-    <!-- End of Content Wrapper -->
-
-    <!-- Scroll to Top Button-->
-    <a class="scroll-to-top rounded" href="#page-top">
-        <i class="bi bi-arrow-up"></i>
-    </a>
-
-    <!-- Logout Modal-->
-    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Ready to Leave?</h5>
-                    <button class="close" type="button" data-bs-dismiss="modal">
-                        <span>&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="/Spare_Purchase/logout">Logout</a>
+        <!-- Logout Modal-->
+        <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Ready to Leave?</h5>
+                        <button class="close" type="button" data-bs-dismiss="modal">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
+                        <a class="btn btn-primary" href="/Spare_Purchase/logout">Logout</a>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Bootstrap core JavaScript-->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Bootstrap core JavaScript-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <!-- Chart.js -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Custom scripts -->
-    <script>
-        // Sidebar Toggle
-        document.getElementById('sidebarToggle').addEventListener('click', function (e) {
-            e.preventDefault();
-            document.getElementById('sidebar').classList.toggle('toggled');
-            document.getElementById('content').classList.toggle('toggled');
-        });
+        <!-- Custom scripts -->
+        <script>
+            // Sidebar Toggle
+            document.getElementById('sidebarToggle').addEventListener('click', function (e) {
+                e.preventDefault();
+                document.getElementById('sidebar').classList.toggle('toggled');
+                document.getElementById('content').classList.toggle('toggled');
+            });
 
-        // Charts
-        document.addEventListener('DOMContentLoaded', function () {
-            // Area Chart
-            var ctx = document.getElementById('myAreaChart');
-            var myLineChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-                    datasets: [{
-                        label: "Earnings",
-                        lineTension: 0.3,
-                        backgroundColor: "rgba(78, 115, 223, 0.05)",
-                        borderColor: "rgba(78, 115, 223, 1)",
-                        pointRadius: 3,
-                        pointBackgroundColor: "rgba(78, 115, 223, 1)",
-                        pointBorderColor: "rgba(78, 115, 223, 1)",
-                        pointHoverRadius: 3,
-                        pointHoverBackgroundColor: "rgba(78, 115, 223, 1)",
-                        pointHoverBorderColor: "rgba(78, 115, 223, 1)",
-                        pointHitRadius: 10,
-                        pointBorderWidth: 2,
-                        data: [0, 10000, 5000, 15000, 10000, 20000, 15000, 25000, 20000, 30000, 25000, 40000],
-                    }],
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
+            // Charts
+            document.addEventListener('DOMContentLoaded', function () {
+                // Area Chart
+                var ctx = document.getElementById('myAreaChart');
+                var myLineChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                        datasets: [{
+                            label: "Earnings",
+                            lineTension: 0.3,
+                            backgroundColor: "rgba(78, 115, 223, 0.05)",
+                            borderColor: "rgba(78, 115, 223, 1)",
+                            pointRadius: 3,
+                            pointBackgroundColor: "rgba(78, 115, 223, 1)",
+                            pointBorderColor: "rgba(78, 115, 223, 1)",
+                            pointHoverRadius: 3,
+                            pointHoverBackgroundColor: "rgba(78, 115, 223, 1)",
+                            pointHoverBorderColor: "rgba(78, 115, 223, 1)",
+                            pointHitRadius: 10,
+                            pointBorderWidth: 2,
+                            data: [0, 10000, 5000, 15000, 10000, 20000, 15000, 25000, 20000, 30000, 25000, 40000],
+                        }],
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true
+                    options: {
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
                         }
                     }
-                }
+                });
+
+                // Pie Chart
+                var ctx2 = document.getElementById('myPieChart');
+                var myPieChart = new Chart(ctx2, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ["Direct", "Referral", "Social"],
+                        datasets: [{
+                            data: [55, 30, 15],
+                            backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc'],
+                            hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf'],
+                            hoverBorderColor: "rgba(234, 236, 244, 1)",
+                        }],
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        cutout: '80%',
+                    },
+                });
             });
 
-            // Pie Chart
-            var ctx2 = document.getElementById('myPieChart');
-            var myPieChart = new Chart(ctx2, {
-                type: 'doughnut',
-                data: {
-                    labels: ["Direct", "Referral", "Social"],
-                    datasets: [{
-                        data: [55, 30, 15],
-                        backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc'],
-                        hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf'],
-                        hoverBorderColor: "rgba(234, 236, 244, 1)",
-                    }],
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    cutout: '80%',
-                },
+
+            document.addEventListener('DOMContentLoaded', function () {
+                const saveBtn = document.getElementById('saveReminder');
+
+                saveBtn.addEventListener('click', function () {
+                    const title = document.getElementById('reminderTitle').value;
+                    const date = document.getElementById('reminderDate').value;
+                    const notes = document.getElementById('reminderNotes').value;
+
+                    if (!title || !date) {
+                        alert('Please fill in required fields');
+                        return;
+                    }
+
+                    // Here you would typically make an AJAX call to your backend
+                    console.log('Saving reminder:', { title, date, notes });
+
+                    // Close the modal after saving
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('reminderModal'));
+                    modal.hide();
+                    const formData = {
+                        title: document.getElementById('reminderTitle').value,
+                        staff_id: document.getElementById('assignedStaff').value,
+                        date: document.getElementById('reminderDate').value,
+                        notes: document.getElementById('reminderNotes').value
+                    };
+                    // Example AJAX call
+                    fetch('/reminders', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}',
+                        },
+                        body: JSON.stringify(formData)
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                location.reload();  // Or update UI
+                            }
+                        });
+                    document.getElementById('reminderTitle').value = ""
+                    document.getElementById('assignedStaff').value = ""
+                    document.getElementById('reminderDate').value = ""
+                    document.getElementById('reminderNotes').value = ""
+
+                });
             });
-        });
-    </script>
+
+
+
+        </script>
 </body>
 
 </html>

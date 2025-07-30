@@ -17,4 +17,11 @@ urlpatterns = [
     path('owner_attendance/', views.owner_attendance_page, name='attendance_page'),
     path('owner_attendance/api/', views.owner_attendance_list, name='attendance_list'),
     path('owner_attendance/api/<int:attendance_id>/', views.owner_update_attendance, name='update_attendance'),
+    path('profile', views.profile, name='ownerprofile'),
+
+    path('owner_profileUpdate', views.owner_profileUpdate, name='owner_profileUpdate'),
+    path('owner_create_job_card/', views.owner_create_job_card, name='owner_create_job_card'),
+    path('reminders', views.reminders, name='reminders'),
+
+
 ]
