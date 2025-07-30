@@ -154,7 +154,7 @@
 
 <body id="page-top">
     <!-- Sidebar -->
-     <div class="sidebar" id="sidebar">
+    <div class="sidebar" id="sidebar">
         <a class="sidebar-brand d-flex align-items-center justify-content-center" href="#">
             <img src="{% static 'img/logo.png' %}" alt="MCW" height="50" class="me-2">
             <span>MCW CRM</span>
@@ -163,25 +163,29 @@
         <hr class="sidebar-divider">
 
         <div class="sidebar-heading">Core</div>
-
+<!-- 
         <li class="nav-item">
              <a class="nav-link active"  href="/Supervisor/Supervisor_home">
                 <i class="bi bi-speedometer2"></i>
                 <span>Dashboard</span>
             </a>
-        </li>
+        </li> -->
         <!-- 
         <li class="nav-item">
-            <a class="nav-link" href="#">
-                <i class="bi bi-people"></i>
-                <span>Customers</span>
-            </a>
-        <li class="nav-item">
-            <a class="nav-link" href="#">
+       <li class="nav-item">
+            <a class="nav-link active" href="#">
                 <i class="bi bi-speedometer2"></i>
                 <span>Dashboard</span>
             </a>
         </li> -->
+
+        <!-- <li class="nav-item">
+            <a class="nav-link" href="#">
+                <i class="bi bi-people"></i>
+                <span>Customers</span>
+            </a>
+        </li> -->
+        
 
         <li class="nav-item">
             <a class="nav-link" href="/Supervisor/Supervisor_jobcard">
@@ -194,29 +198,18 @@
 
         <div class="sidebar-heading">Management</div>
 
-        <!-- <li class="nav-item">
-            <a class="nav-link" href="#">
-                <i class="bi bi-file-earmark-text"></i>
-                <span>Staff</span>
-            </a>
-        </li> -->
-
-        <li class="nav-item">
+  
+        </li> 
+             <li class="nav-item">
             <a class="nav-link" href="/Supervisor/supervisor_view_stock">
                 <i class="bi bi-box-seam"></i>
                 <span>Stock</span>
             </a>
         </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/Supervisor/supervisor_view_staff_attendance">
-                <i class="bi bi-box-seam"></i>
-                <span>Attendance</span>
-            </a>
-        </li>
 
-        </li> 
+     
         <li class="nav-item">
-            <a class="nav-link" href="/Supervisor/supervisor_Attendance">
+            <a class="nav-link" href="/Supervisor/supervisor_view_staff_attendance">
                 <i class="bi bi-people"></i>
                 <span>Attendance</span>
             </a>
@@ -227,6 +220,7 @@
                 <span>Profile</span>
             </a>
         </li>
+
         <!-- <li class="nav-item">
             <a class="nav-link" href="#">
                 <i class="bi bi-gear"></i>
@@ -234,6 +228,7 @@
             </a>
         </li> -->
     </div>
+
 
 
     <!-- Content Wrapper -->

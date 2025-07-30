@@ -11,6 +11,12 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 import json
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.units import inch
+from datetime import datetime, timedelta
 
 def Supervisor_home(request):
     return render(request,"SupervisorHome.html")
@@ -753,7 +759,208 @@ def record_payment(request):
 
 
 
+
 def generate_invoice(request):
+    
+    
+    data = json.loads(request.body)
+    output_filename=data["invoice_number"]
+    jobObj=JobCardDB.objects.get(id=int(data["job_card_id"]))
+    address=jobObj.customer.address
+    filename = f"Invoice_{output_filename}.pdf"
+    filepath = os.path.join(settings.MEDIA_ROOT, 'invoices', filename)
+    
+    doc = SimpleDocTemplate(filepath, pagesize=letter,
+                           rightMargin=36, leftMargin=36,
+                           topMargin=36, bottomMargin=36)
+    
+    # Content container
+    elements = []
+    
+    # Styles
+    styles = getSampleStyleSheet()
+    
+    # Custom styles
+    styles.add(ParagraphStyle(name='InvoiceTitle', 
+                             fontSize=24, 
+                             leading=28,
+                             alignment=1,  # center aligned
+                             textColor=colors.HexColor("#2c3e50"),
+                             spaceAfter=24,
+                             fontName="Helvetica-Bold"))
+    
+    styles.add(ParagraphStyle(name='Header', 
+                             fontSize=10, 
+                             leading=12,
+                             textColor=colors.HexColor("#34495e")))
+    
+    styles.add(ParagraphStyle(name='Footer', 
+                             fontSize=8, 
+                             leading=10,
+                             textColor=colors.HexColor("#7f8c8d"),
+                             alignment=1))
+    
+    # Add logo (replace with your actual logo path)
+    # logo_path = "logo.png"  # Replace with your logo file or remove this section
+    # if os.path.exists(logo_path):
+    #     logo = Image(logo_path, width=2*inch, height=0.5*inch)
+    #     elements.append(logo)
+    #     elements.append(Spacer(1, 0.25*inch))
+    
+    # Invoice title with accent color
+    elements.append(Paragraph(f"{data['invoiceNam']}", styles['InvoiceTitle']))
+    
+    # Decorative line
+    elements.append(Spacer(1, 0.1*inch))
+    elements.append(Table([[""]], colWidths=[7*inch], style=[
+        ('LINEABOVE', (0,0), (0,0), 1, colors.HexColor("#3498db"))
+    ]))
+    elements.append(Spacer(1, 0.25*inch))
+    
+    # Company and client information with improved layout
+    company_info = [
+        [Paragraph("<b>From.</b>", styles['Header']), 
+         Paragraph("<b>BILL TO</b>", styles['Header'])],
+       
+    ]
+    lines1 = ["Piller no:113, Metro station, near Companypady,",
+             "Thaikkattukara, Aluva, Kerala 683106"]
+    lines=[]
+    current_line = ""
+    for part in address:
+        # If adding this part would exceed 45 chars, start a new line
+        if current_line and len(current_line) + len(part) + 2 > 48:  # +2 for comma and space
+            lines.append(current_line)
+            current_line = part
+        else:
+            if current_line:
+                current_line +=   part
+            else:
+                current_line = part
+
+    if current_line:
+        lines.append(current_line)
+    result = [[x or "", y] for x, y in zip_longest(lines1, lines, fillvalue="")]
+    
+    print(result)
+    for i in result:
+        company_info.append(i)
+    company_info.append(["Email:- ", "Email:- "+str(jobObj.customer.email)])
+    company_info.append(["Phone:- +91 96562 56743", f"Phone:- {jobObj.customer.phone}"])
+    
+    
+    company_table = Table(company_info, colWidths=[doc.width/2]*2)
+    company_table.setStyle(TableStyle([
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.HexColor("#2c3e50")),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),  # More space after headers
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 4),
+        ('LEFTPADDING', (0, 0), (-1, -1), 0),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+    ]))
+    elements.append(company_table)
+    elements.append(Spacer(1, 0.4*inch))
+    print(data)
+    # Invoice details with better visual hierarchy
+    invoice_details = [
+        [Paragraph("<font color='#3498db'><b>INVOICE #</b></font>", styles['Header']), 
+         Paragraph(f"{data['invoice_number']}", styles['Header'])],
+        [Paragraph("<font color='#3498db'><b>DATE</b></font>", styles['Header']), 
+         datetime.now().strftime("%B %d, %Y")],
+        # [Paragraph("<font color='#3498db'><b>DUE DATE</b></font>", styles['Header']), 
+        #  (datetime.now() + timedelta(days=30)).strftime("%B %d, %Y")],
+        # [Paragraph("<font color='#3498db'><b>PAYMENT TERMS</b></font>", styles['Header']), 
+        #  "Net 30"],
+        [Paragraph("<font color='#3498db'><b>PAYMENT METHOD</b></font>", styles['Header']), 
+         f"{jobObj.PaymentMethod}"]
+    ]
+    
+    invoice_table = Table(invoice_details, colWidths=[1.5*inch, 3*inch])
+    invoice_table.setStyle(TableStyle([
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.HexColor("#2c3e50")),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('ALIGN', (0, 0), (0, 0), 'LEFT'),
+        ('VALIGN', (0, 0), (0, 0), 'TOP'),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+        ('LEFTPADDING', (0, 0), (-1, -1), 0),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+        ('BACKGROUND', (0, 0), (0, -1), colors.HexColor("#f8f9fa")),
+    ]))
+    elements.append(invoice_table)
+    elements.append(Spacer(1, 0.4*inch))
+    
+    # Items table with premium styling
+    bold_style = ParagraphStyle('Bold', parent=styles['Normal'], 
+                               fontName='Helvetica-Bold',
+                               textColor=colors.HexColor("#2c3e50"))
+    
+    items = [
+        [
+            Paragraph("<font color='#3498db'>ITEM</font>", bold_style),
+            Paragraph("<font color='#3498db'>DESCRIPTION</font>", bold_style),
+            Paragraph("<font color='#3498db'>QTY</font>", bold_style),
+            Paragraph("<font color='#3498db'>UNIT PRICE</font>", bold_style),
+            Paragraph("<font color='#3498db'>AMOUNT</font>", bold_style)
+        ],
+        
+    ]
+    part=JobCardPartsDB.objects.filter(JobCart=jobObj)
+    de={}
+    n1=1
+    for i in part:
+        if i.part_obj.id in de.keys():
+            de[i.part_obj.id][2]=int(de[i.part_obj.id][2])+int(i.quantity)
+        else:
+            de[i.part_obj.id]=[str(n1),str(i.part_obj.ItemName),str(i.quantity),"$"+str(i.part_obj.Price),"$"+str(i.quantity*i.part_obj.Price)]
+            n1
+    for i in de.values():
+        items.append(i)
+    lbcharge=jobObj.labor_hours*jobObj.hourly_rate
+    items.append([f"{n1}", "Labor Charges", "", "", f"${lbcharge}"])
+    items.append(["", "", "", Paragraph("<b>Subtotal:</b>", bold_style), f"${jobObj.TotalPayent}"],)
+    items.append(["", "", "", Paragraph("<font color='#3498db'><b>TOTAL DUE:</b></font>", bold_style), 
+         Paragraph(f"<font color='#3498db'><b>${jobObj.TotalPayent}</b></font>", bold_style)])
+ 
+        # # ["", "", "", Paragraph("<b>Tax (10%):</b>", bold_style), "$640.00"],
+
+    items_table = Table(items, colWidths=[1.2*inch, 2.5*inch, 0.6*inch, 1.2*inch, 1.2*inch])
+    items_table.setStyle(TableStyle([
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.HexColor("#2c3e50")),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('ALIGN', (2, 0), (-1, -1), 'RIGHT'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ('LEFTPADDING', (0, 0), (-1, -1), 4),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 4),
+        ('LINEBELOW', (0, 0), (-1, 0), 1, colors.HexColor("#3498db")),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#f8f9fa")),
+        ('LINEABOVE', (0, -3), (-1, -3), 1, colors.HexColor("#bdc3c7")),
+        ('LINEABOVE', (0, -1), (-1, -1), 1, colors.HexColor("#3498db")),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#f8f9fa")]),
+    ]))
+    elements.append(items_table)
+    elements.append(Spacer(1, 0.5*inch))
+    
+    
+    
+   
+   
+    
+    # Build the document
+    doc.build(elements)
+    print(f"Premium invoice generated: {filepath}")
+    
+    
+    return JsonResponse({
+        'success': True,
+        'invoice_url': os.path.join(settings.MEDIA_URL, 'invoices', filename)
+    })
+
+
+
     
     
     data = json.loads(request.body)
