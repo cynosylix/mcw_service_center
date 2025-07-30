@@ -460,9 +460,7 @@
         // Render staff cards
         function renderStaffCards(staffData) {
             const staffList = document.getElementById('staffList');
-            staffList.innerHTML = staffData.length ? '' : `
-                <div class="alert alert-info">No attendance records found for today</div>
-            `;
+            staffList.innerHTML = '';
 
             staffData.forEach(employee => {
                 const statusClass = {

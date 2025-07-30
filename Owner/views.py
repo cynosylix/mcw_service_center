@@ -93,7 +93,7 @@ def ViewStaffPg(request):
     position = request.session.get('user_position')
     
     if position == "Owner":
-        user_data = UsesDB.objects.exclude(position='Owner').exclude(position='Supervisor')
+        user_data = UsesDB.objects.exclude(position='Owner')
         
         # Get selected month and year (default to current)
         now = datetime.now()
@@ -231,6 +231,7 @@ def owner_attendance_list(request):
             # Get or create attendance record
             attendance, created = Attendance.objects.get_or_create(
                 employee=employee,
+                date=date.today(),
                 defaults={
                     'morning_status': 'absent',
                     'afternoon_status': 'absent',
